@@ -1,14 +1,12 @@
+`lbp_print` is a small utility for processing a LombardPress valid XML text with
+a relevant XSLT script and compile to PDF with XeLaTeX.
+
 # Requirements
 
-This script has the following requirements (from the `requirements.txt`):
-```
-docopt==0.6.2
-isodate==0.5.4
-lbppy==0.0.0
-lxml==3.7.3
-pyparsing==2.2.0
-rdflib==4.2.2
-SPARQLWrapper==1.8.0
-untangle==1.1.0
-wheel==0.24.0
-```
+The script makes use of *XeLaTeX* and *SaxonHE*. Currently, *Saxon* is included
+in the vendor directory, but Java Runtime Environment must be installed to run
+it. One might consider going over to
+the [pysaxon module](https://github.com/ajelenak/pysaxon).
+
+Aside from that, there are also some internal dependencies, specified in the
+`requirements.txt` file.

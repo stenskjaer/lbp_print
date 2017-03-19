@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""LBP print as a service.
+"""LombardPress print.
 
 Usage:
-  lbp-print-service.py (tex|pdf) [options] --local <file>
-  lbp-print-service.py (tex|pdf) [options] --scta <expression-id>
+  lbp_print.py (tex|pdf) [options] --local <file>
+  lbp_print.py (tex|pdf) [options] --scta <expression-id>
 
-Pull LBP-compliant files from SCTA repositories, convert them into tex or pdf.
+Pull LBP-compliant files from SCTA repositories or use local, convert them into
+tex or pdf.
 
 Arguments:
   <file>                  Location of (local) file to be processed.
@@ -25,6 +26,7 @@ Options:
   -V, --verbosity <level> Set verbosity. Possibilities: silent, info, debug [default: debug].
   -v, --version           Show version and exit.
   -h, --help              Show this help message and exit.
+
 """
 
 from docopt import docopt

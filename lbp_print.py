@@ -37,6 +37,7 @@ import urllib
 import os
 import lxml
 
+MODULE_DIR = os.path.dirname(__file__)
 
 class Transcription:
     """The main object of the script, defining the properties of the text under processing."""
@@ -136,7 +137,7 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
     Return: File object.
     """
     logging.debug(f"Start conversion of {xml_file}")
-    tex_buffer = subprocess.run(['java', '-jar', 'vendor/saxon9he.jar', f'-s:{xml_file}', f'-xsl:{xslt_script}'],
+    tex_buffer = subprocess.run(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'), f'-s:{xml_file}', f'-xsl:{xslt_script}'],
                                 stdout=subprocess.PIPE).stdout.decode('utf-8')
     # Output dir preparation: If output flags, check that dir and set, if not,
     # create or empty the dir "output" in current working dir.
@@ -198,7 +199,7 @@ def select_xlst_script(trans_obj):
     else:
         xslt_document_type = 'diplomatic'
     xslt_version = schema_info['version']
-    top = './xslt'
+    top = os.path.join(MODULE_DIR, 'xslt')
     if xslt_version in os.listdir(top):
         if xslt_document_type + '.xslt' in os.listdir(os.path.join(top, xslt_version)):
             return os.path.relpath(os.path.join(top, xslt_version, xslt_document_type)) + '.xslt'

@@ -26,3 +26,8 @@ the [pysaxon module](https://github.com/ajelenak/pysaxon).
 
 Aside from that, there are also some internal dependencies, specified in the
 `requirements.txt` file.
+
+
+# TODO
+
+- [ ] Add whitespace cleanup

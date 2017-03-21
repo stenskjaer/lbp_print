@@ -161,6 +161,37 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
         f.write(tex_buffer)
     return f
 
+def clean_tex(tex_file):
+    #stream edit for unwanted spaces
+    #commented out pattern is yielding "bad bite sequence error"; perhaps something do with astrisk
+    #it's also not clear if \1 match is working
+    patterns = [
+    's/ \{1,\}/ /g',           # ' {' => '{'
+    's/{ /{/g',                # '{ ' => '{'
+	's/ }/}/g',                # ' }' => '}'
+	's/ :/:/g',                # ' :' => ':'
+    's/} ./}./g',              # '} .' => '}.'
+	's/} ,/},/g',              # '} ,' => '},'
+	#'s/ *//g'               # '[tab]*' => ''
+	"s/ \(\\\edtext{}\)/\1/g", # ' \edtext{}' => '\edtext{}'
+	"s/}\(\\\edtext{[^}]\)/} \1/g", # '}\edtext{...' => '} \edtext'
+	"s/ \([.,?!]\)/\1/g"      # ' [punctuation]' => '[punctuation]'
+    ]
+    joined_pattern = ";".join(patterns)
+
+    logging.info("Trying to remove whitespace...")
+    logging.info(f'searching for the following patterns: "{joined_pattern}"')
+
+    subprocess.call(["sed", "-i.bak", "-e", f"{joined_pattern}", f"{tex_file.name}"])
+
+    # not sure how to handle this error in python
+    #if $? != 0:
+		#puts "Whitespace cleanup failed."
+	#else:
+	#	puts "Whitespace cleanup finished successfully."
+	#end
+
+
 
 def compile_tex(tex_file):
     """Convert a tex file to pdf with XeLaTeX.
@@ -250,6 +281,10 @@ if __name__ == "__main__":
         output_dir = False
 
     tex_file = convert_xml_to_tex(transcription.file.name, xslt_script, output_dir)
+
+    # clear tex file
+    # there could be an option for whether not a person wants this white space cleaning to take effect
+    clean_tex(tex_file)
 
     if args["pdf"]:
         pdf_file = compile_tex(tex_file)

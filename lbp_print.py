@@ -157,7 +157,7 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
 
     # Output file name based on transcription object.
     basename, _ = os.path.splitext(os.path.basename(xml_file))
-    with open(os.path.join(output_dir, basename + '.tex'), 'w') as f:
+    with open(os.path.join(output_dir, basename + '.tex'), mode='w', encoding='utf-8') as f:
         f.write(tex_buffer)
     return f
 

@@ -36,6 +36,7 @@ import lbppy
 import urllib
 import os
 import lxml
+import re
 
 MODULE_DIR = os.path.dirname(__file__)
 
@@ -161,36 +162,32 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
         f.write(tex_buffer)
     return f
 
+
 def clean_tex(tex_file):
-    #stream edit for unwanted spaces
-    #commented out pattern is yielding "bad bite sequence error"; perhaps something do with astrisk
-    #it's also not clear if \1 match is working
-    patterns = [
-    's/ \{1,\}/ /g',           # ' {' => '{'
-    's/{ /{/g',                # '{ ' => '{'
-	's/ }/}/g',                # ' }' => '}'
-	's/ :/:/g',                # ' :' => ':'
-    's/} ./}./g',              # '} .' => '}.'
-	's/} ,/},/g',              # '} ,' => '},'
-	#'s/ *//g'               # '[tab]*' => ''
-	"s/ \(\\\edtext{}\)/\1/g", # ' \edtext{}' => '\edtext{}'
-	"s/}\(\\\edtext{[^}]\)/} \1/g", # '}\edtext{...' => '} \edtext'
-	"s/ \([.,?!]\)/\1/g"      # ' [punctuation]' => '[punctuation]'
-    ]
-    joined_pattern = ";".join(patterns)
+    """Clean the content of the tex file for different whitespace problems.
 
+    Side effect: This changes the content of the file.
+
+    :param tex_file: File object of the tex file.
+    :return: File object of the tex file after cleanup.
+    """
     logging.info("Trying to remove whitespace...")
-    logging.info(f'searching for the following patterns: "{joined_pattern}"')
+    patterns = [
+        (r' ?{ ?', r'{'),                 # Remove redundant space around opening bracket.
+        (r' }', r'}'),                    # Remove redundant space before closing bracket.
+        (r' ([.,?!:;])', r'\1'),          # Remove redundant space before punctuation.
+        (r' (\\edtext{})', r'\1'),        # Remove space before empty lemma app notes.
+        (r'}(\\edtext{[^}]})', r'} \1'),  # Add missing space between adjacent app. notes.
+        (r'\s+', ' ')
+    ]
 
-    subprocess.call(["sed", "-i.bak", "-e", f"{joined_pattern}", f"{tex_file.name}"])
+    buffer = open(tex_file.name).read()
+    for pattern, replacement in patterns:
+        buffer = re.sub(pattern, replacement, buffer)
 
-    # not sure how to handle this error in python
-    #if $? != 0:
-		#puts "Whitespace cleanup failed."
-	#else:
-	#	puts "Whitespace cleanup finished successfully."
-	#end
-
+    with open(tex_file.name, 'w') as f:
+        f.write(buffer)
+        return f
 
 
 def compile_tex(tex_file):
@@ -283,8 +280,8 @@ if __name__ == "__main__":
     tex_file = convert_xml_to_tex(transcription.file.name, xslt_script, output_dir)
 
     # clear tex file
-    # there could be an option for whether not a person wants this white space cleaning to take effect
-    clean_tex(tex_file)
+    # there could be an option for whether or not a person wants this white space cleaning to take effect
+    tex_file = clean_tex(tex_file)
 
     if args["pdf"]:
         pdf_file = compile_tex(tex_file)

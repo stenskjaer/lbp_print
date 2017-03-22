@@ -36,6 +36,7 @@ import lbppy
 import urllib
 import os
 import lxml
+import re
 
 MODULE_DIR = os.path.dirname(__file__)
 
@@ -162,6 +163,33 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
     return f
 
 
+def clean_tex(tex_file):
+    """Clean the content of the tex file for different whitespace problems.
+
+    Side effect: This changes the content of the file.
+
+    :param tex_file: File object of the tex file.
+    :return: File object of the tex file after cleanup.
+    """
+    logging.info("Trying to remove whitespace...")
+    patterns = [
+        (r' ?{ ?', r'{'),                 # Remove redundant space around opening bracket.
+        (r' }', r'}'),                    # Remove redundant space before closing bracket.
+        (r' ([.,?!:;])', r'\1'),          # Remove redundant space before punctuation.
+        (r' (\\edtext{})', r'\1'),        # Remove space before empty lemma app notes.
+        (r'}(\\edtext{[^}]})', r'} \1'),  # Add missing space between adjacent app. notes.
+        (r'\s+', ' ')
+    ]
+
+    buffer = open(tex_file.name).read()
+    for pattern, replacement in patterns:
+        buffer = re.sub(pattern, replacement, buffer)
+
+    with open(tex_file.name, 'w') as f:
+        f.write(buffer)
+        return f
+
+
 def compile_tex(tex_file):
     """Convert a tex file to pdf with XeLaTeX.
 
@@ -250,6 +278,10 @@ if __name__ == "__main__":
         output_dir = False
 
     tex_file = convert_xml_to_tex(transcription.file.name, xslt_script, output_dir)
+
+    # clear tex file
+    # there could be an option for whether or not a person wants this white space cleaning to take effect
+    tex_file = clean_tex(tex_file)
 
     if args["pdf"]:
         pdf_file = compile_tex(tex_file)

@@ -138,8 +138,12 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
     Return: File object.
     """
     logging.debug(f"Start conversion of {xml_file}")
-    tex_buffer = subprocess.run(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'), f'-s:{xml_file}', f'-xsl:{xslt_script}'],
-                                stdout=subprocess.PIPE).stdout.decode('utf-8')
+    process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
+                                f'-s:{xml_file}', f'-xsl:{xslt_script}'],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
+    tex_buffer = str(out.decode('utf-8'))
+
     # Output dir preparation: If output flags, check that dir and set, if not,
     # create or empty the dir "output" in current working dir.
     if output:

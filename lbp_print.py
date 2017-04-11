@@ -55,28 +55,39 @@ class Transcription:
         """
         pass
 
+
 class LocalTranscription(Transcription):
     """Object for handling local files."""
 
     def __init__(self, input):
+
         Transcription.__init__(self, input)
         self.file = self.__define_file()
         self.lbp_schema_info = self.get_schema_info()
 
     def get_schema_info(self):
         """Return the validation schema version."""
-        schemaref_number = lxml.etree.parse(self.file).xpath(
-            "/tei:TEI/tei:teiHeader[1]/tei:encodingDesc[1]/tei:schemaRef[1]/@n",
-            namespaces={"tei": "http://www.tei-c.org/ns/1.0"}
-        )[0]                # The returned result is a list. Grab first element.
-        if schemaref_number:
+        # TODO: We need validation of the xml before parsing it. This is necesssary for proper user feedback on errors.
+
+        try:
+            schemaref_number = lxml.etree.parse(self.file.name).xpath(
+                "/tei:TEI/tei:teiHeader[1]/tei:encodingDesc[1]/tei:schemaRef[1]/@n",
+                namespaces={"tei": "http://www.tei-c.org/ns/1.0"}
+                )[0]  # The returned result is a list. Grab first element.
             return {
                 'version': schemaref_number.split('-')[2],
                 'type': schemaref_number.split('-')[1]
             }
-        else:
-            raise BufferError('The document does not contain a value in '
-                              'TEI/teiHeader/encodingDesc/schemaRef[@n]')
+        except IndexError as e:
+            logging.error('The document does not seem to contain a value in '
+                          'TEI/teiHeader/encodingDesc/schemaRef[@n]. See the LombardPress documentation for help. '
+                          'If the problem persists, please submit an issue report.')
+            raise
+        except Exception as e:
+            logging.error('The process resulted in an error: {}.\n '
+                          'If the problem persists, please submit an issue report.'.format(e))
+            raise
+
 
     def __define_file(self):
         """Return the file object.
@@ -94,6 +105,7 @@ class RemoteTranscription(Transcription):
     Keyword arguments:
     input -- SCTA resource id of the text to be processed.
     """
+
     def __init__(self, input):
         Transcription.__init__(self, input)
         self.resource = lbppy.Resource.find(input)
@@ -141,8 +153,13 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
     process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
                                 f'-s:{xml_file}', f'-xsl:{xslt_script}'],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     out, err = process.communicate()
-    tex_buffer = str(out.decode('utf-8'))
+
+    if err:
+        logging.warning('The XSLT script reported the following warning(s):\n'
+                        + err.decode('utf-8'))
+    tex_buffer = out.decode('utf-8')
 
     # Output dir preparation: If output flags, check that dir and set, if not,
     # create or empty the dir "output" in current working dir.
@@ -205,9 +222,17 @@ def compile_tex(tex_file):
     Return: Output file object.
     """
     logging.info(f"Start compilation of {tex_file.name}")
-    process_out = subprocess.run(['latexmk', f'{tex_file.name}', '-xelatex',
-                                  '-output-directory=output'], stdout=subprocess.PIPE).stdout
-    logging.debug(process_out.decode('utf-8'))
+    process = subprocess.Popen(f'latexmk {tex_file.name} -xelatex -output-directory=static/output',
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+    while True:
+        # latexmk spews output into stdout, while stderr is the bare essentials.
+        line = process.stderr.readline()
+        if line is not b'':
+            logging.info(line.decode('utf-8').replace('\n', ''))
+        else:
+            break
+
     output_basename, _ = os.path.splitext(tex_file.name)
     return open(output_basename + '.pdf')
 
@@ -240,6 +265,7 @@ def select_xlst_script(trans_obj):
                                     {os.path.join(top, xslt_version)}.")
     else:
         raise NotADirectoryError(f"A directory for version {xslt_version} was not found in {top}")
+
 
 if __name__ == "__main__":
 
@@ -289,6 +315,5 @@ if __name__ == "__main__":
 
     if args["pdf"]:
         pdf_file = compile_tex(tex_file)
-
 
     logging.info('Results returned sucessfully.')

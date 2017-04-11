@@ -116,6 +116,7 @@ class RemoteTranscription(Transcription):
         if not self.transcription_object:
             # If no critical, can we just take the first diplomatic? Better alternatives?
             self.transcription_object = self.canonical_transcriptions[0]
+        self.id = self.input.split('/')[-1]
         self.file = self.__define_file()
         self.lbp_schema_info = self.get_schema_info()
 
@@ -129,12 +130,13 @@ class RemoteTranscription(Transcription):
     def __define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.
         """
-        logging.debug("Remote resource located. Downloading ...")
-        transcription_file, _ = urllib.request.urlretrieve(
-            self.transcription_object.resource().file().file().geturl()
-        )
+        logging.info("Remote resource located. Downloading ...")
+        with urllib.request.urlopen(self.transcription_object.resource().file().file().geturl()) as response:
+            transcription_content = response.read().decode('utf-8')
+            with open(f'upload/{self.id}.xml', mode='w') as f:
+                f.write(transcription_content)
         logging.info("Download of remote resource finished.")
-        return open(transcription_file)
+        return open(f.name)
 
 
 def convert_xml_to_tex(xml_file, xslt_script, output=False):

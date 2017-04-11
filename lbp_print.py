@@ -106,15 +106,10 @@ class RemoteTranscription(Transcription):
     input -- SCTA resource id of the text to be processed.
     """
 
-    def __init__(self, input, download_dir=False):
-        Transcription.__init__(self, input)
+    def __init__(self, resource_input, download_dir=False):
+        Transcription.__init__(self, resource_input)
         self.download_dir = download_dir
-        try:
-            self.resource = lbppy.Resource.find(input)
-        except AttributeError:
-            logging.error(f'A resource with the provided ID ("{input}") could not be located. '
-                          'Ensure that you have entered the correct id. ')
-            raise
+        self.resource = self.__find_remote_resource(resource_input)
         self.canonical_transcriptions = [m.resource().canonical_transcription()
                                          for m in self.resource.manifestations()]
         self.transcription_object = [trans for trans in self.canonical_transcriptions
@@ -132,6 +127,14 @@ class RemoteTranscription(Transcription):
             'version': self.transcription_object.resource().file().validating_schema_version(),
             'type': self.transcription_object.resource().transcription_type()
         }
+
+    def __find_remote_resource(self, resource_input):
+        try:
+            return lbppy.Resource.find(resource_input)
+        except AttributeError:
+            logging.error(f'A resource with the provided ID ("{resource_input}") could not be located. '
+                          'Ensure that you have entered the correct id. ')
+            raise
 
     def __define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.

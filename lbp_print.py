@@ -131,18 +131,24 @@ class RemoteTranscription(Transcription):
     def __define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.
         """
-        logging.info("Remote resource located. Downloading ...")
+        logging.info("Remote resource ID given.")
         if self.download_dir:
             download_dir = self.__find_or_create_download_dir(self.download_dir)
         else:
             download_dir = self.__find_or_create_download_dir('download')
 
-        with urllib.request.urlopen(self.transcription_object.resource().file().file().geturl()) as response:
-            transcription_content = response.read().decode('utf-8')
-            with open(os.path.join(download_dir, self.id + '.xml'), mode='w') as f:
-                f.write(transcription_content)
-        logging.info("Download of remote resource finished.")
-        return open(f.name)
+        file_path = os.path.join(download_dir, self.id + '.xml')
+        if os.path.isfile(file_path):
+            logging.info(f"Using cached version of ID {self.id}.")
+            return open(file_path)
+        else:
+            logging.info("Downloading remote resource...")
+            with urllib.request.urlopen(self.transcription_object.resource().file().file().geturl()) as response:
+                transcription_content = response.read().decode('utf-8')
+                with open(file_path, mode='w') as f:
+                    f.write(transcription_content)
+            logging.info("Download of remote resource finished.")
+            return open(f.name)
 
     def __find_or_create_download_dir(self, download_dir):
         if os.path.isdir(download_dir):

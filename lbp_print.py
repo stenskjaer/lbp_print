@@ -136,7 +136,7 @@ class RemoteTranscription(Transcription):
     def __define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.
         """
-        logging.info("Remote resource ID given.")
+        logging.info("Remote resource initialized.")
         if self.download_dir:
             download_dir = self.__find_or_create_download_dir(self.download_dir)
         else:
@@ -176,7 +176,7 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
 
     Return: File object.
     """
-    logging.debug(f"Start conversion of {xml_file}")
+    logging.info(f"Start conversion of {xml_file}...")
     process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
                                 f'-s:{xml_file}', f'-xsl:{xslt_script}'],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -208,6 +208,7 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
     basename, _ = os.path.splitext(os.path.basename(xml_file))
     with open(os.path.join(output_dir, basename + '.tex'), mode='w', encoding='utf-8') as f:
         f.write(tex_buffer)
+    logging.info('The XML was successfully converted.')
     return f
 
 
@@ -235,7 +236,9 @@ def clean_tex(tex_file):
 
     with open(tex_file.name, 'w') as f:
         f.write(buffer)
-        return f
+
+    logging.info('Whitespace removed.')
+    return f
 
 
 def compile_tex(tex_file):

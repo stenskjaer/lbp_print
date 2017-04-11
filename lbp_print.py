@@ -106,8 +106,9 @@ class RemoteTranscription(Transcription):
     input -- SCTA resource id of the text to be processed.
     """
 
-    def __init__(self, input):
+    def __init__(self, input, download_dir=False):
         Transcription.__init__(self, input)
+        self.download_dir = download_dir
         self.resource = lbppy.Resource.find(input)
         self.canonical_transcriptions = [m.resource().canonical_transcription()
                                          for m in self.resource.manifestations()]
@@ -131,12 +132,25 @@ class RemoteTranscription(Transcription):
         """Determine whether the file input supplied is local or remote and return its file object.
         """
         logging.info("Remote resource located. Downloading ...")
+        if self.download_dir:
+            download_dir = self.__find_or_create_download_dir(self.download_dir)
+        else:
+            download_dir = self.__find_or_create_download_dir('download')
+
         with urllib.request.urlopen(self.transcription_object.resource().file().file().geturl()) as response:
             transcription_content = response.read().decode('utf-8')
-            with open(f'upload/{self.id}.xml', mode='w') as f:
+            with open(os.path.join(download_dir, self.id + '.xml'), mode='w') as f:
                 f.write(transcription_content)
         logging.info("Download of remote resource finished.")
         return open(f.name)
+
+    def __find_or_create_download_dir(self, download_dir):
+        if os.path.isdir(download_dir):
+            return download_dir
+        else:
+            logging.warn(f'The supplied download directory {download_dir} does not exist. It will be created.')
+            os.mkdir(download_dir)
+            return download_dir
 
 
 def convert_xml_to_tex(xml_file, xslt_script, output=False):

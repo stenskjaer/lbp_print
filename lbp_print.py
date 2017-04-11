@@ -109,7 +109,12 @@ class RemoteTranscription(Transcription):
     def __init__(self, input, download_dir=False):
         Transcription.__init__(self, input)
         self.download_dir = download_dir
-        self.resource = lbppy.Resource.find(input)
+        try:
+            self.resource = lbppy.Resource.find(input)
+        except AttributeError:
+            logging.error(f'A resource with the provided ID ("{input}") could not be located. '
+                          'Ensure that you have entered the correct id. ')
+            raise
         self.canonical_transcriptions = [m.resource().canonical_transcription()
                                          for m in self.resource.manifestations()]
         self.transcription_object = [trans for trans in self.canonical_transcriptions

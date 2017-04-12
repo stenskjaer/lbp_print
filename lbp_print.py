@@ -197,7 +197,9 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
         if os.path.isdir(output):
             output_dir = output
         else:
-            raise ValueError(f"The supplied output dir, {output}, is not a directory.")
+            logging.warn(f'The supplied output directory {output} does not exist. It will be created.')
+            os.mkdir(output)
+            output_dir = output
     else:
         output_dir = 'output'
         if not output_dir in os.listdir('.'):

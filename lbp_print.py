@@ -246,18 +246,22 @@ def clean_tex(tex_file):
     return f
 
 
-def compile_tex(tex_file):
+def compile_tex(tex_file, output_dir=False):
     """Convert a tex file to pdf with XeLaTeX.
 
     This requires `latexmk` and `xelatex`.
 
     Keyword Arguments:
     tex_file -- the tex file object to be converted.
+    output_dir -- the directory where latexmk should put the created files. [default: tex file dir]
 
     Return: Output file object.
     """
     logging.info(f"Start compilation of {tex_file.name}")
-    process = subprocess.Popen(f'latexmk {tex_file.name} -xelatex -output-directory=static/output',
+    if not output_dir:
+        output_dir = os.path.dirname(tex_file.name)
+
+    process = subprocess.Popen(f'latexmk {tex_file.name} -xelatex -output-directory={output_dir}',
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
     while True:

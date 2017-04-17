@@ -23,6 +23,9 @@ Options:
   --local                 Boolean. Process local file.
   --xslt <file>           Use a custom xslt file in place of the default supplied templates.
   --output, -o <dir>      Put results in the specified directory.
+  --xslt-parameters <str> String of command line parameters that will be passed to the XSLT script, separated with a 
+                          single space (" "). If you use pass more than one parameter, they be enclosed in quotes. 
+                          Example: --xslt-params "first-parameter=hello second-parameter=bye"
   -V, --verbosity <level> Set verbosity. Possibilities: silent, info, debug [default: debug].
   -v, --version           Show version and exit.
   -h, --help              Show this help message and exit.
@@ -167,7 +170,7 @@ class RemoteTranscription(Transcription):
             return download_dir
 
 
-def convert_xml_to_tex(xml_file, xslt_script, output=False):
+def convert_xml_to_tex(xml_file, xslt_script, output=False, xslt_parameters=False):
     """Convert the list of encoded files to tex, using the auxiliary XSLT script.
 
     The function creates a output dir in the current working dir and puts the tex file in that
@@ -180,9 +183,15 @@ def convert_xml_to_tex(xml_file, xslt_script, output=False):
     Return: File object.
     """
     logging.info(f"Start conversion of {xml_file}...")
-    process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
-                                f'-s:{xml_file}', f'-xsl:{xslt_script}'],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    if xslt_parameters:
+        process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
+                                    f'-s:{xml_file}', f'-xsl:{xslt_script}', xslt_parameters],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    else:
+        process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
+                                    f'-s:{xml_file}', f'-xsl:{xslt_script}'],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     out, err = process.communicate()
 
@@ -346,7 +355,7 @@ if __name__ == "__main__":
     else:
         output_dir = False
 
-    tex_file = convert_xml_to_tex(transcription.file.name, xslt_script, output_dir)
+    tex_file = convert_xml_to_tex(transcription.file.name, xslt_script, output_dir, args["--xslt-parameters"])
 
     # clear tex file
     # there could be an option for whether or not a person wants this white space cleaning to take effect

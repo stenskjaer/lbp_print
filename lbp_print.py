@@ -117,7 +117,7 @@ class RemoteTranscription(Transcription):
             self.canonical_manifestation = self.resource.canonical_manifestation()
             self.transcription_object = self.canonical_manifestation.resource().canonical_transcription()
         except:
-            logging.error(f'No critical transcription for {resource_input}, use first available transcription.')
+            logging.info(f'No critical transcription for {resource_input}, use first available transcription.')
             self.transcription_object = self.resource.manifestations()[0].resource().canonical_transcription()
         self.id = self.input.split('/')[-1]
         self.file = self.__define_file()

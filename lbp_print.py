@@ -113,13 +113,12 @@ class RemoteTranscription(Transcription):
         Transcription.__init__(self, resource_input)
         self.download_dir = download_dir
         self.resource = self.__find_remote_resource(resource_input)
-        self.canonical_transcriptions = [m.resource().canonical_transcription()
-                                         for m in self.resource.manifestations()]
-        self.transcription_object = [trans for trans in self.canonical_transcriptions
-                                     if trans.resource().transcription_type() == 'critical'][0]
-        if not self.transcription_object:
-            # If no critical, can we just take the first diplomatic? Better alternatives?
-            self.transcription_object = self.canonical_transcriptions[0]
+        try:
+            self.canonical_manifestation = self.resource.canonical_manifestation()
+            self.transcription_object = self.canonical_manifestation.resource().canonical_transcription()
+        except:
+            logging.error(f'No critical transcription for {resource_input}, use first available transcription.')
+            self.transcription_object = self.resource.manifestations()[0].resource().canonical_transcription()
         self.id = self.input.split('/')[-1]
         self.file = self.__define_file()
         self.lbp_schema_info = self.get_schema_info()

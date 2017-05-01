@@ -43,6 +43,12 @@ $ ./lbp_print.py pdf --scta http://scta.info/resource/lectio1
 ```
 You should now be able to find the result in the directory *output*.
 
+When you are done, you can reset your system to the state before testing,
+deactivate the virtual environment. If you never want to use the script again,
+remove the directory of the environment (possibly with `rmvirtualenv` if you
+have installed `virtualenvwrapper`) and remove the directory created by the `git
+clone` command.
+
 
 ## System install
 

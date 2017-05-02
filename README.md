@@ -73,3 +73,42 @@ but Java Runtime Environment on the system to run it. One might consider
 going over to the [pysaxon module](https://github.com/ajelenak/pysaxon). You
 also need to have a installation of *XeLaTeX*.
 
+# Usage
+
+The script has two main command `tex` and `pdf`, determining which type of
+output you want. If you want to use a local file, you should use the `--local`
+option pointing to the location of a local file, otherwise you can point to the
+url of a SCTA registered text item with the option `--scta`. 
+
+To get a full overview of the options and possible commands, run `lbp_print
+--help`. This will produce this usage guide:
+
+```
+Usage:
+  lbp_print.py (tex|pdf) [options] --local <file>
+  lbp_print.py (tex|pdf) [options] --scta <expression-id>
+
+Pull LBP-compliant files from SCTA repositories or use local, convert them into
+tex or pdf.
+
+Arguments:
+  <file>                   Location of (local) file to be processed.
+  <expression-id>          The expression id of the item to be processed.
+
+Commands:
+  tex                      Convert the xml to a tex-file.
+  pdf                      Convert the xml to a tex-file and compile it into a pdf.
+
+Options:
+  --scta                   Boolean. When True, the <identifier> should be an expression id of the
+                           SCTA database.
+  --local                  Boolean. Process local file.
+  --xslt <file>            Use a custom xslt file in place of the default supplied templates.
+  --output, -o <dir>       Put results in the specified directory.
+  --xslt-parameters <str>  String of command line parameters that will be passed to the XSLT script, separated with a
+                           single space (" "). If you use pass more than one parameter, they be enclosed in quotes.
+                           Example: --xslt-params "first-parameter=hello second-parameter=bye"
+  -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug [default: info].
+  -v, --version            Show version and exit.
+  -h, --help               Show this help message and exit.
+```

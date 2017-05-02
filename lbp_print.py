@@ -10,25 +10,25 @@ Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
 
 Arguments:
-  <file>                  Location of (local) file to be processed.
-  <expression-id>         The expression id of the item to be processed.
+  <file>                   Location of (local) file to be processed.
+  <expression-id>          The expression id of the item to be processed.
 
 Commands:
-  tex                     Convert the xml to a tex-file.
-  pdf                     Convert the xml to a tex-file and compile it into a pdf.
+  tex                      Convert the xml to a tex-file.
+  pdf                      Convert the xml to a tex-file and compile it into a pdf.
 
 Options:
-  --scta                  Boolean. When True, the <identifier> should be an expression id of the
-                          SCTA database.
-  --local                 Boolean. Process local file.
-  --xslt <file>           Use a custom xslt file in place of the default supplied templates.
-  --output, -o <dir>      Put results in the specified directory.
-  --xslt-parameters <str> String of command line parameters that will be passed to the XSLT script, separated with a 
-                          single space (" "). If you use pass more than one parameter, they be enclosed in quotes. 
-                          Example: --xslt-params "first-parameter=hello second-parameter=bye"
-  -V, --verbosity <level> Set verbosity. Possibilities: silent, info, debug [default: debug].
-  -v, --version           Show version and exit.
-  -h, --help              Show this help message and exit.
+  --scta                   Boolean. When True, the <identifier> should be an expression id of the
+                           SCTA database.
+  --local                  Boolean. Process local file.
+  --xslt <file>            Use a custom xslt file in place of the default supplied templates.
+  --output, -o <dir>       Put results in the specified directory.
+  --xslt-parameters <str>  String of command line parameters that will be passed to the XSLT script, separated with a
+                           single space (" "). If you use pass more than one parameter, they be enclosed in quotes.
+                           Example: --xslt-params "first-parameter=hello second-parameter=bye"
+  -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug [default: info].
+  -v, --version            Show version and exit.
+  -h, --help               Show this help message and exit.
 
 """
 
@@ -323,8 +323,6 @@ if __name__ == "__main__":
     # Setup logging
     log_formatter = logging.Formatter()
     verbosity = args['--verbosity']
-    if not verbosity:
-        verbosity = 'DEBUG'
     logging.basicConfig(level=verbosity.upper(), format="%(levelname)s: %(message)s")
     logging.debug(args)
 

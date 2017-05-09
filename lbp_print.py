@@ -41,10 +41,8 @@ import os
 import lxml
 import re
 
-
 __version__ = '0.0.2'
-__MODULE_DIR__ = os.path.dirname(__file__)
-
+MODULE_DIR = os.path.dirname(__file__)
 
 class Transcription:
     """The main object of the script, defining the properties of the text under processing."""
@@ -321,7 +319,7 @@ def select_xlst_script(trans_obj):
 if __name__ == "__main__":
 
     # Read command line arguments
-    args = docopt(__doc__, __version__)
+    args = docopt(__doc__, version=__version__)
 
     # Setup logging
     log_formatter = logging.Formatter()

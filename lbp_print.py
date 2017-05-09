@@ -242,7 +242,8 @@ def clean_tex(tex_file):
         (r' (\\edtext{})', r'\1'),        # Remove space before empty lemma app notes.
         (r'}(\\edtext{[^}]})', r'} \1'),  # Add missing space between adjacent app. notes.
         (r' +', ' '),                     # Remove excessive whitespace.
-        (r'} ([.,?!:;])', r'}\1'),        # Remove redundant space between closing brackets and punctuation.
+        (r'} ([.,?!:;])', r'}\1'),        # Remove redundant space between closing brackets. and punctuation.
+        (r'\n ', r'\n'),                 # Remove leading space at beginning of line.
     ]
 
     buffer = open(tex_file.name).read()

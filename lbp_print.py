@@ -246,11 +246,10 @@ def clean_tex(tex_file):
         (r'\n +', r'\n'),                 # Remove leading space at beginning of line.
     ]
 
-    buffer = open(tex_file.name).read()
-    for pattern, replacement in patterns:
-        buffer = re.sub(pattern, replacement, buffer)
-
-    with open(tex_file.name, 'w') as f:
+    with open(tex_file.name, 'r+') as f:
+        buffer = f.read()
+        for pattern, replacement in patterns:
+            buffer = re.sub(pattern, replacement, buffer)
         f.write(buffer)
 
     logging.info('Whitespace removed.')

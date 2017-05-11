@@ -243,17 +243,53 @@ def clean_tex(tex_file):
         (r'}(\\edtext{[^}]})', r'} \1'),  # Add missing space between adjacent app. notes.
         (r' +', ' '),                     # Remove excessive whitespace.
         (r'} ([.,?!:;])', r'}\1'),        # Remove redundant space between closing brackets. and punctuation.
-        (r'\n +', r'\n'),                 # Remove leading space at beginning of line.
+        (r'^ +', r''),                    # Remove leading space at beginning of line.
+        # Replace all straight quotes with \enquote{...}
+        (r' "', r' \\enquote{'),          # Convert all open quotes to \enquote{
+        (r'"', r'}'),                     # Convert all close quotes to }
     ]
+    fname = tex_file.name
+    orig_fname = fname + '.orig'
 
-    with open(tex_file.name, 'r+') as f:
-        buffer = f.read()
+    # Rename original tex file into a .tex.orig file
+    try:
+        os.rename(fname, orig_fname)
+    except IOError:
+        print("Could not create temp file for cleaning.")
+        exit(0)
+
+    # Open original file in read only mode
+    try:
+        fi = open(orig_fname, 'r')
+    except IOError:
+        print("Could not open file.")
+        exit(0)
+
+    # Create a new file that will contain the clean text
+    try:
+        fo = open(fname, 'w')
+    except IOError:
+        print("Could not create temp file for cleaning.")
+        exit(0)
+
+    for line in fi.readlines():
         for pattern, replacement in patterns:
-            buffer = re.sub(pattern, replacement, buffer)
-        f.write(buffer)
+            line = re.sub(pattern, replacement, line)
+        fo.write(line)
+
+    # Close both files and dewtroy file objects
+    fi.close()
+    fo.close()
+
+    # First check that the new file exists before deleting the old one
+    if os.path.isfile(fname):
+        try:
+            os.remove(orig_fname)
+        except IOError:
+            print("Could not delete temp file. Continuing...")
 
     logging.info('Whitespace removed.')
-    return f
+    return open(fname, 'r')
 
 
 def compile_tex(tex_file, output_dir=False):

@@ -269,14 +269,11 @@ def clean_tex(tex_file):
     except IOError:
         raise IOError("Could not create temp file for cleaning.")
 
-    for line in fi.readlines():
-        for pattern, replacement in patterns:
-            line = re.sub(pattern, replacement, line)
-        fo.write(line)
-
-    # Close both files and dewtroy file objects
-    fi.close()
-    fo.close()
+    with fi, fo:
+        for line in fi.readlines():
+            for pattern, replacement in patterns:
+                line = re.sub(pattern, replacement, line)
+            fo.write(line)
 
     # First check that the new file exists before deleting the old one
     if os.path.isfile(fname):

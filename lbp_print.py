@@ -255,22 +255,19 @@ def clean_tex(tex_file):
     try:
         os.rename(fname, orig_fname)
     except IOError:
-        print("Could not create temp file for cleaning.")
-        exit(0)
+        raise IOError("Could not create temp file for cleaning.")
 
     # Open original file in read only mode
     try:
         fi = open(orig_fname, 'r')
     except IOError:
-        print("Could not open file.")
-        exit(0)
+        raise IOError("Could not open file.")
 
     # Create a new file that will contain the clean text
     try:
         fo = open(fname, 'w')
     except IOError:
-        print("Could not create temp file for cleaning.")
-        exit(0)
+        raise IOError("Could not create temp file for cleaning.")
 
     for line in fi.readlines():
         for pattern, replacement in patterns:
@@ -286,7 +283,7 @@ def clean_tex(tex_file):
         try:
             os.remove(orig_fname)
         except IOError:
-            print("Could not delete temp file. Continuing...")
+            logging.warning("Could not delete temp file. Continuing...")
 
     logging.info('Whitespace removed.')
     return open(fname, 'r')
@@ -392,11 +389,12 @@ if __name__ == "__main__":
 
     tex_file = convert_xml_to_tex(transcription.file.name, xslt_script, output_dir, args["--xslt-parameters"])
 
-    # clear tex file
+    # clean tex file
     # there could be an option for whether or not a person wants this white space cleaning to take effect
-    tex_file = clean_tex(tex_file)
+    output_file = clean_tex(tex_file)
 
     if args["pdf"]:
-        pdf_file = compile_tex(tex_file)
+        output_file = compile_tex(tex_file)
 
-    logging.info('Results returned sucessfully.')
+    logging.info('Results returned sucessfully.\n '
+                 'The output file is located at %s' % output_file.name)

@@ -283,7 +283,7 @@ def clean_tex(tex_file):
             logging.warning("Could not delete temp file. Continuing...")
 
     logging.info('Whitespace removed.')
-    return fname
+    return fo
 
 
 def compile_tex(tex_file, output_dir=False):

@@ -1,3 +1,3 @@
 [submodule "xslt"]
-	path = xslt
+	path = lbp_print/xslt
 	url = https://github.com/stenskjaer/lbp-print-xslt.git

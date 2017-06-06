@@ -54,7 +54,7 @@ class Transcription:
         """Return schema version info."""
         pass
 
-    def __define_file(self):
+    def _define_file(self):
         """Return file object.
         """
         pass
@@ -66,7 +66,7 @@ class LocalTranscription(Transcription):
     def __init__(self, input):
 
         Transcription.__init__(self, input)
-        self.file = self.__define_file()
+        self.file = self._define_file()
         self.lbp_schema_info = self.get_schema_info()
 
     def get_schema_info(self):
@@ -93,7 +93,7 @@ class LocalTranscription(Transcription):
             raise
 
 
-    def __define_file(self):
+    def _define_file(self):
         """Return the file object.
         """
         file_argument = self.input
@@ -113,7 +113,7 @@ class RemoteTranscription(Transcription):
     def __init__(self, resource_input, download_dir=False):
         Transcription.__init__(self, resource_input)
         self.download_dir = download_dir
-        self.resource = self.__find_remote_resource(resource_input)
+        self.resource = self.find_remote_resource(resource_input)
         try:
             self.canonical_manifestation = self.resource.canonical_manifestation()
             self.transcription_object = self.canonical_manifestation.resource().canonical_transcription()
@@ -121,7 +121,7 @@ class RemoteTranscription(Transcription):
             logging.info(f'No critical transcription for {resource_input}, use first available transcription.')
             self.transcription_object = self.resource.manifestations()[0].resource().canonical_transcription()
         self.id = self.input.split('/')[-1]
-        self.file = self.__define_file()
+        self.file = self._define_file()
         self.lbp_schema_info = self.get_schema_info()
 
     def get_schema_info(self):
@@ -131,7 +131,7 @@ class RemoteTranscription(Transcription):
             'type': self.transcription_object.resource().transcription_type()
         }
 
-    def __find_remote_resource(self, resource_input):
+    def find_remote_resource(self, resource_input):
         try:
             return lbppy.Resource.find(resource_input)
         except AttributeError:
@@ -139,14 +139,14 @@ class RemoteTranscription(Transcription):
                           'Ensure that you have entered the correct id. ')
             raise
 
-    def __define_file(self):
+    def _define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.
         """
         logging.info("Remote resource initialized.")
         if self.download_dir:
-            download_dir = self.__find_or_create_download_dir(self.download_dir)
+            download_dir = self._find_or_create_download_dir(self.download_dir)
         else:
-            download_dir = self.__find_or_create_download_dir('download')
+            download_dir = self._find_or_create_download_dir('download')
 
         file_path = os.path.join(download_dir, self.id + '.xml')
         # We are disabling the caching temporarily until we have a better solution.
@@ -162,7 +162,7 @@ class RemoteTranscription(Transcription):
         logging.info("Download of remote resource finished.")
         return open(f.name)
 
-    def __find_or_create_download_dir(self, download_dir):
+    def _find_or_create_download_dir(self, download_dir):
         if os.path.isdir(download_dir):
             return download_dir
         else:

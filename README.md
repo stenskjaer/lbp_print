@@ -43,6 +43,15 @@ $ ./lbp_print.py pdf --scta http://scta.info/resource/lectio1
 ```
 You should now be able to find the result in the directory *output*.
 
+You can also make the package globally available (in the virtual environment, if you
+want), but use the `-e` flag during installation to symlink the source files and
+the global CLI. Then if you make any changes in the script, it is available in
+the global CLI. Try it with (from the base dir of the package):
+
+```bash
+pip install -e .
+```
+
 When you are done, you can reset your system to the state before testing,
 deactivate the virtual environment. If you never want to use the script again,
 remove the directory of the environment (possibly with `rmvirtualenv` if you

@@ -85,8 +85,8 @@ To get a full overview of the options and possible commands, run `lbp_print
 
 ```
 Usage:
-  lbp_print.py (tex|pdf) [options] --local <file>
-  lbp_print.py (tex|pdf) [options] --scta <expression-id>
+  lbp_print (tex|pdf) [options] --local <file>
+  lbp_print (tex|pdf) [options] --scta <expression-id>
 
 Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
@@ -97,18 +97,22 @@ Arguments:
 
 Commands:
   tex                      Convert the xml to a tex-file.
-  pdf                      Convert the xml to a tex-file and compile it into a pdf.
+  pdf                      Convert the xml to a tex-file and compile it into a
+                           pdf.
 
 Options:
-  --scta                   Boolean. When True, the <identifier> should be an expression id of the
-                           SCTA database.
+  --scta                   Boolean. When True, the <identifier> should be an
+                           expression id of the SCTA database.
   --local                  Boolean. Process local file.
-  --xslt <file>            Use a custom xslt file in place of the default supplied templates.
+  --xslt <file>            Use a custom xslt file in place of the default
+                           supplied templates.
   --output, -o <dir>       Put results in the specified directory.
-  --xslt-parameters <str>  String of command line parameters that will be passed to the XSLT script, separated with a
-                           single space (" "). If you use pass more than one parameter, they be enclosed in quotes.
-                           Example: --xslt-params "first-parameter=hello second-parameter=bye"
-  -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug [default: info].
+  --xslt-parameters <str>  Command line parameters that will be
+                           passed to the XSLT script. Unfortunately, this only
+                           works with one parameter at the moment.
+                           Example: --xslt-params "key=value"
+  -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug
+                           [default: info].
   -v, --version            Show version and exit.
   -h, --help               Show this help message and exit.
 ```

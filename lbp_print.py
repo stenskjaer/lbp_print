@@ -41,7 +41,6 @@ import os
 import lxml
 import re
 
-__version__ = '0.0.2'
 MODULE_DIR = os.path.dirname(__file__)
 
 class Transcription:
@@ -350,7 +349,7 @@ def select_xlst_script(trans_obj):
 if __name__ == "__main__":
 
     # Read command line arguments
-    args = docopt(__doc__, version=__version__)
+    args = docopt(__doc__, version='0.0.2')
 
     # Setup logging
     log_formatter = logging.Formatter()

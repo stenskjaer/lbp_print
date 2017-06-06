@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
-from lbp_print import __version__
-
 setup(name='lbp_print',
-      version=__version__,
+      version='0.0.2',
       packages=find_packages(),
       scripts=['lbp_print.py'],
       dependency_links=[

@@ -3,7 +3,7 @@
 *output/
 
 ### Ignore src directory which is created after pip install -r requirements.txt
-src/
+*src/
 
 ### PyCharm ###
 .idea/

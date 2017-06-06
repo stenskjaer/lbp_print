@@ -4,7 +4,6 @@ from setuptools import setup, find_packages
 setup(name='lbp_print',
       version='0.0.2',
       packages=find_packages(),
-      scripts=['lbp_print.py'],
       dependency_links=[
           "git+https://github.com/lombardpress/lbppy.git@f272e44429fcbd3f19384471c9cfb3903100fb30#egg=lbppy",
       ],
@@ -22,6 +21,9 @@ setup(name='lbp_print',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.6',
       ],
+      entry_points={
+          'console_scripts': ['lbp_print=lbp_print.cli:main']
+      },
 
       description='Collection of utility scripts for handling LombardPress material.',
       url='https://github.com/stenskjaer/lbp_print',

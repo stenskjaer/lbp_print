@@ -285,8 +285,8 @@ def compile_tex(tex_file, output_dir=False):
 
     logging.info(f"Start compilation of {tex_file.name}")
 
-    process = subprocess.Popen([f'latexmk {tex_file.name} -output-directory={output_dir} '
-                                f'-pdflatex=xelatex'],
+    process = subprocess.Popen(f'latexmk --output-directory={output_dir} --pdflatex=xelatex '
+                               f'--halt-on-error {tex_file.name}',
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                shell=True, bufsize=1)
     q = queue.Queue()
@@ -300,8 +300,12 @@ def compile_tex(tex_file, output_dir=False):
     process.wait()
     q.put(None)
 
-    output_basename, _ = os.path.splitext(tex_file.name)
-    return open(output_basename + '.pdf')
+    if process.returncode == 0:
+        output_basename, _ = os.path.splitext(tex_file.name)
+        return open(output_basename + '.pdf')
+    else:
+        logging.error('The compilation failed. See tex output above for mor info.')
+        raise Exception('Latex compilation failed.')
 
 
 def select_xlst_script(trans_obj):

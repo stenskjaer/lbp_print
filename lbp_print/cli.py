@@ -89,7 +89,7 @@ def main():
     output_file = clean_tex(tex_file)
 
     if args["pdf"]:
-        output_file = compile_tex(tex_file)
+        output_file = compile_tex(tex_file, output_dir)
 
     logging.info('Results returned sucessfully.\n '
                  'The output file is located at %s' % output_file.name)

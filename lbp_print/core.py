@@ -285,8 +285,8 @@ def compile_tex(tex_file, output_dir=False):
 
     logging.info(f"Start compilation of {tex_file.name}")
 
-    process = subprocess.Popen([f'latexmk {tex_file.name}',
-                                f'-pdflatex=xelatex', '-output-directory={output_dir}'],
+    process = subprocess.Popen([f'latexmk {tex_file.name} -output-directory={output_dir} '
+                                f'-pdflatex=xelatex'],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                shell=True, bufsize=1)
     q = queue.Queue()

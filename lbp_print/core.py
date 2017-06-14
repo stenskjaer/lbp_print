@@ -3,14 +3,16 @@
 """LombardPress print.
 """
 
-
-import subprocess
 import logging
-import lbppy
-import urllib
-import os
 import lxml
+import os
+import queue
 import re
+import subprocess
+import threading
+import urllib
+
+import lbppy
 
 MODULE_DIR = os.path.dirname(__file__)
 
@@ -268,20 +270,35 @@ def compile_tex(tex_file, output_dir=False):
 
     Return: Output file object.
     """
-    logging.info(f"Start compilation of {tex_file.name}")
+
+    def read_output(pipe, func):
+        for line in iter(pipe.readline, b''):
+            func(line)
+        pipe.close()
+
+    def write_output(get):
+        for line in iter(get, None):
+            logging.info(line.decode('utf-8').replace('\n', ''))
+
     if not output_dir:
         output_dir = os.path.dirname(tex_file.name)
 
-    process = subprocess.Popen(f'latexmk {tex_file.name} -xelatex -output-directory={output_dir}',
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    logging.info(f"Start compilation of {tex_file.name}")
 
-    while True:
-        # latexmk spews output into stdout, while stderr is the bare essentials.
-        line = process.stderr.readline()
-        if line is not b'':
-            logging.info(line.decode('utf-8').replace('\n', ''))
-        else:
-            break
+    process = subprocess.Popen([f'latexmk {tex_file.name}',
+                                f'-pdflatex=xelatex', '-output-directory={output_dir}'],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               shell=True, bufsize=1)
+    q = queue.Queue()
+    out_thread = threading.Thread(target=read_output, args=(process.stdout, q.put))
+    err_thread = threading.Thread(target=read_output, args=(process.stderr, q.put))
+    write_thread = threading.Thread(target=write_output, args=(q.get,))
+
+    for t in (out_thread, err_thread, write_thread):
+        t.start()
+
+    process.wait()
+    q.put(None)
 
     output_basename, _ = os.path.splitext(tex_file.name)
     return open(output_basename + '.pdf')

@@ -217,9 +217,10 @@ def clean_tex(tex_file):
         (r' +', ' '),                     # Remove excessive whitespace.
         (r'} ([.,?!:;])', r'}\1'),        # Remove redundant space between closing brackets. and punctuation.
         (r'^ +', r''),                    # Remove leading space at beginning of line.
-        # Replace all straight quotes with \enquote{...}
-        (r' "', r' \\enquote{'),          # Convert all open quotes to \enquote{
-        (r'"', r'}'),                     # Convert all close quotes to }
+
+        # Replace anything wrapped in "..." with \enquote{...}. This is a bit dangerous as it
+        # assumes that the editor always balances his quotes, and we cannot be sure of that.
+        (r'"([^"]+?)"', r'\\enquote{\1}'),
     ]
     fname = tex_file.name
     orig_fname = fname + '.orig'

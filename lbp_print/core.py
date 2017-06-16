@@ -286,7 +286,7 @@ def compile_tex(tex_file, output_dir=False):
 
     logging.info(f"Start compilation of {tex_file.name}")
 
-    process = subprocess.Popen(f'latexmk --output-directory={output_dir} --pdflatex=xelatex '
+    process = subprocess.Popen(f'latexmk --output-directory={output_dir} --xelatex '
                                f'--halt-on-error {tex_file.name}',
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                shell=True, bufsize=1)

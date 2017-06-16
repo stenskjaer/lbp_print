@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
+from lbp_print import __version__
+
 setup(name='lbp_print',
-      version='0.0.2',
+      version=__version__,
       packages=find_packages(),
       dependency_links=[
           "git+https://github.com/lombardpress/lbppy.git@f272e44429fcbd3f19384471c9cfb3903100fb30#egg=lbppy",

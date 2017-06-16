@@ -40,12 +40,13 @@ import os
 
 from docopt import docopt
 
-from lbp_print import __version__
 from lbp_print.core import LocalTranscription, RemoteTranscription, select_xlst_script, clean_tex, \
     convert_xml_to_tex, compile_tex
+from lbp_print.__about__ import __version__
 
 
 def main():
+
     # Read command line arguments
     args = docopt(__doc__, version=__version__)
 

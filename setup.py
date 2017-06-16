@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
 from setuptools import setup, find_packages
 
-from lbp_print import __version__
+
+about = {}
+with open(os.path.join('lbp_print', '__about__.py')) as fp:
+    exec(fp.read(), about)
 
 setup(name='lbp_print',
-      version=__version__,
+      version=about['__version__'],
       packages=find_packages(),
       dependency_links=[
           "git+https://github.com/lombardpress/lbppy.git@f272e44429fcbd3f19384471c9cfb3903100fb30#egg=lbppy",

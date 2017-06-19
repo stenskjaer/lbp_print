@@ -217,6 +217,7 @@ def clean_tex(tex_file):
         (r' +', ' '),                     # Remove excessive whitespace.
         (r'} ([.,?!:;])', r'}\1'),        # Remove redundant space between closing brackets. and punctuation.
         (r'^ +', r''),                    # Remove leading space at beginning of line.
+        (r' %$', '%'),                    # Remove trailing whitespace at paragraph end.
 
         # Replace anything wrapped in "..." with \enquote{...}. This is a bit dangerous as it
         # assumes that the editor always balances his quotes, and we cannot be sure of that.

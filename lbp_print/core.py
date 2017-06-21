@@ -91,7 +91,6 @@ class RemoteTranscription(Transcription):
         self.id = self.input.split('/')[-1]
         self.file = self._define_file()
         self.lbp_schema_info = self.get_schema_info()
-        logging.debug(self.__dict__)
 
     def get_schema_info(self):
         """Return the validation schema version."""

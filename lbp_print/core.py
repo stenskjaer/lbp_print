@@ -86,21 +86,25 @@ class RemoteTranscription(Transcription):
         Transcription.__init__(self, resource_input)
         self.download_dir = download_dir
         self.resource = self.find_remote_resource(resource_input)
-        try:
-            self.transcription_object = self.define_transcription_object()
-        except:
-            logging.info(f'No critical transcription for {resource_input}, use first available transcription.')
-            self.transcription_object = self.resource.manifestations()[0].resource().canonical_transcription()
+        self.direct_transcription = False  # Does the input refer directly to a transcription.
+        self.transcription_object = self.define_transcription_object()
         self.id = self.input.split('/')[-1]
         self.file = self._define_file()
         self.lbp_schema_info = self.get_schema_info()
+        logging.debug(self.__dict__)
 
     def get_schema_info(self):
         """Return the validation schema version."""
-        return {
-            'version': self.transcription_object.resource().file().validating_schema_version(),
-            'type': self.transcription_object.resource().transcription_type()
-        }
+        if self.direct_transcription:
+            return {
+                'version': self.transcription_object.file().validating_schema_version(),
+                'type': self.transcription_object.transcription_type()
+            }
+        else:
+            return {
+                'version': self.transcription_object.resource().file().validating_schema_version(),
+                'type': self.transcription_object.resource().transcription_type()
+            }
 
     def find_remote_resource(self, resource_input):
         try:
@@ -111,10 +115,17 @@ class RemoteTranscription(Transcription):
             raise
 
     def define_transcription_object(self):
+        """
+        Return a canonical transcription of either Manifestation (critical) or Expression (
+        diplomatic) objects.
+        """
         if isinstance(self.resource, lbppy.Expression):
             return self.resource.canonical_manifestation().resource().canonical_transcription()
         elif isinstance(self.resource, lbppy.Manifestation):
             return self.resource.canonical_transcription()
+        elif isinstance(self.resource, lbppy.Transcription):
+            self.direct_transcription = True
+            return self.resource
 
     def _define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.
@@ -131,8 +142,14 @@ class RemoteTranscription(Transcription):
         #     logging.info(f"Using cached version of ID {self.id}.")
         #     return open(file_path)
         # else:
+
         logging.info("Downloading remote resource...")
-        with urllib.request.urlopen(self.transcription_object.resource().file().file().geturl()) as response:
+        if self.direct_transcription:
+            url_object = self.transcription_object.file().file().geturl()
+        else:
+            url_object = self.transcription_object.resource().file().file().geturl()
+
+        with urllib.request.urlopen(url_object) as response:
             transcription_content = response.read().decode('utf-8')
             with open(file_path, mode='w') as f:
                 f.write(transcription_content)

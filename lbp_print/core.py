@@ -87,8 +87,7 @@ class RemoteTranscription(Transcription):
         self.download_dir = download_dir
         self.resource = self.find_remote_resource(resource_input)
         try:
-            self.canonical_manifestation = self.resource.canonical_manifestation()
-            self.transcription_object = self.canonical_manifestation.resource().canonical_transcription()
+            self.transcription_object = self.define_transcription_object()
         except:
             logging.info(f'No critical transcription for {resource_input}, use first available transcription.')
             self.transcription_object = self.resource.manifestations()[0].resource().canonical_transcription()
@@ -110,6 +109,12 @@ class RemoteTranscription(Transcription):
             logging.error(f'A resource with the provided ID ("{resource_input}") could not be located. '
                           'Ensure that you have entered the correct id. ')
             raise
+
+    def define_transcription_object(self):
+        if isinstance(self.resource, lbppy.Expression):
+            return self.resource.canonical_manifestation().resource().canonical_transcription()
+        elif isinstance(self.resource, lbppy.Manifestation):
+            return self.resource.canonical_transcription()
 
     def _define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.

@@ -107,10 +107,20 @@ class RemoteTranscription(Transcription):
             }
 
     def find_remote_resource(self, resource_input):
+
+        url_match = re.match(r'(http://)?(scta.info/resource)?', resource_input)
+        url_string = ''
+        if url_match:
+            if url_match.group(1) is None:
+                url_string += 'http://'
+            if not url_match.group(2):
+                url_string += 'scta.info/resource/'
+
+        url_string += resource_input
         try:
-            return lbppy.Resource.find(resource_input)
+            return lbppy.Resource.find(url_string)
         except AttributeError:
-            logging.error(f'A resource with the provided ID ("{resource_input}") could not be located. '
+            logging.error(f'A resource with the provided ID ("{url_string}") could not be located. '
                           'Ensure that you have entered the correct id. ')
             raise
 

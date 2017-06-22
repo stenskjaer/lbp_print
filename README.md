@@ -133,18 +133,59 @@ Options:
 ## Config files
 
 If you keep passing the same arguments to the script, for instance to your own
-custom xslt script, you might want to use a config file.
+custom xslt script, you might want to use a config file. The config file is
+written in JSON format.
 
 By default the script looks for at configuration file with the name
-`~/.lbp_print.conf`, but if you pass another file path in the `--config-file`
+`~/.lbp_print.json`, but if you pass another file path in the `--config-file`
 argument, it will look in that location.
 
 The default configuration file of the standard options looks like this:
-```config
-[SETTINGS]
---output = ./output
---config-file = ~/.lbp_print.conf
---verbosity = info
+```json
+{
+    "--output": "./output",
+    "--config-file": "~/.lbp_print.json",
+    "--verbosity": "info"
+}
 ```
-The arguments must be the long form with the prepended `--` just as if you were
-passing it directly as command line arguments.
+The arguments must be the long form identical to the specification in the
+`lbp_print --help` description. This means that options must have prepended
+`--`, arguments wrapped in `<>` and commands without any wrapping.
+
+## Recipes
+
+You can create full configuration files describing all relevant command line
+arguments for creating a specific result and pass that file along with the
+`recipe` command.
+
+For example, running this command:
+```bash
+lbp_print recipe ~/Desktop/lbp.json
+```
+
+Where the content of `~/Desktop/lbp.json` is
+```
+{
+    "--local": true,
+    "<file>": [
+        "~/Transcriptions/49-prooemium/da-49-prooemium.xml",
+        "~/Transcriptions/49-l1q1/da-49-l1q1.xml",
+        "~/Transcriptions/49-l3q15/da-49-l3q15.xml"
+    ],
+    "--output": "~/Desktop/Dinsdale",
+    "--verbosity": "debug"
+}
+```
+
+Is equivalent to running
+```bash
+lbp_print pdf --output ~/Desktop/Dinsdale --verbosity debug \
+    --local ~/Transcriptions/49-prooemium/da-49-prooemium.xml \
+    ~/Transcriptions/49-l1q1/da-49-l1q1.xml \
+    ~/Transcriptions/49-l3q15/da-49-l3q15.xml
+```
+
+Such recipes can be very useful when creating the same group of items with a
+specific configuration multiple times with good confidence that the
+configuration is stable.
+

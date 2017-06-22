@@ -94,15 +94,17 @@ To get a full overview of the options and possible commands, run `lbp_print
 
 ```
 Usage:
-  lbp_print (tex|pdf) [options] --local <file>
-  lbp_print (tex|pdf) [options] --scta <expression-id>
+  lbp_print (tex|pdf) [options] --local <file>...
+  lbp_print (tex|pdf) [options] --scta <expression-id>...
 
 Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
 
 Arguments:
-  <file>                   Location of (local) file to be processed.
-  <expression-id>          The expression id of the item to be processed.
+  <file>                   Location of one or more local files to be processed.
+  <expression-id>          The expression id of the items to be processed.
+
+Multiple arguments are separated with whitespace.
 
 Commands:
   tex                      Convert the xml to a tex-file.
@@ -119,9 +121,30 @@ Options:
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
                            works with one parameter at the moment.
-                           Example: --xslt-params "key=value"
+                           Example: --xslt-parameters "key=value"
+  --config-file <file>     Location of a config file. 
+                           [default: ~/.lbp_print.conf]
   -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug
                            [default: info].
   -v, --version            Show version and exit.
   -h, --help               Show this help message and exit.
 ```
+
+## Config files
+
+If you keep passing the same arguments to the script, for instance to your own
+custom xslt script, you might want to use a config file.
+
+By default the script looks for at configuration file with the name
+`~/.lbp_print.conf`, but if you pass another file path in the `--config-file`
+argument, it will look in that location.
+
+The default configuration file of the standard options looks like this:
+```config
+[SETTINGS]
+--output = ./output
+--config-file = ~/.lbp_print.conf
+--verbosity = info
+```
+The arguments must be the long form with the prepended `--` just as if you were
+passing it directly as command line arguments.

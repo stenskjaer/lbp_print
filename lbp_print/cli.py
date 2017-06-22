@@ -10,8 +10,10 @@ Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
 
 Arguments:
-  <file>                   Location of (local) file to be processed.
-  <expression-id>          The expression id of the item to be processed.
+  <file>                   Location of one or more local files to be processed.
+  <expression-id>          The expression id of the items to be processed.
+
+Multiple arguments are separated with whitespace.
 
 Commands:
   tex                      Convert the xml to a tex-file.
@@ -28,7 +30,9 @@ Options:
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
                            works with one parameter at the moment.
-                           Example: --xslt-params "key=value"
+                           Example: --xslt-parameters "key=value"
+  --config-file <file>     Location of a config file.
+                           [default: ~/.lbp_print.conf]
   -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug
                            [default: info].
   -v, --version            Show version and exit.
@@ -44,18 +48,47 @@ from lbp_print.core import LocalTranscription, RemoteTranscription, select_xlst_
     convert_xml_to_tex, compile_tex
 from lbp_print.__about__ import __version__
 
+def load_config(filename):
+    """Load and read in configuration from local config file."""
+    from configparser import ConfigParser
+
+    # By using `allow_no_value=True` we are allowed to
+    # write `--force` instead of `--force=true` below.
+    config = ConfigParser()
+
+    try:
+        config.read(filename)
+
+        # ConfigParser sets keys which have no value
+        # (like `--force` above) to `None`. Thus we
+        # need to substitute all `None` with `True`.
+        return dict((key, value)
+                    for key, value in config.items('SETTINGS'))
+
+    except FileNotFoundError:
+        logging.warning(f'The config file {filename} was not found. Default settings will be used.')
 
 def main():
 
     # Read command line arguments
-    args = docopt(__doc__, version=__version__)
+    cl_args = docopt(__doc__, version=__version__)
+
+    # Expand user dir for config file.
+    cl_args['--config-file'] = os.path.expanduser(cl_args['--config-file'])
+
+    # Read config file.
+    ini_args = load_config(cl_args['--config-file'])
+
+    # Merge configurations, giving command line arguments priority over config file arguments
+    args = {**cl_args, **ini_args}
 
     # Setup logging
     log_formatter = logging.Formatter()
     verbosity = args['--verbosity']
     logging.basicConfig(level=verbosity.upper(), format="%(levelname)s: %(message)s")
-    logging.debug(args)
 
+    # Debug startup info
+    logging.debug(args)
     logging.debug('App initialized.')
     logging.debug('Logging initialized.')
 

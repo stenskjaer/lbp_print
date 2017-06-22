@@ -40,6 +40,7 @@ class LocalTranscription(Transcription):
         Transcription.__init__(self, input)
         self.file = self._define_file()
         self.lbp_schema_info = self.get_schema_info()
+        logging.debug("Local resource initialized.")
 
     def get_schema_info(self):
         """Return the validation schema version."""
@@ -91,6 +92,7 @@ class RemoteTranscription(Transcription):
         self.id = self.input.split('/')[-1]
         self.file = self._define_file()
         self.lbp_schema_info = self.get_schema_info()
+        logging.debug("Remote resource initialized.")
 
     def get_schema_info(self):
         """Return the validation schema version."""
@@ -139,7 +141,6 @@ class RemoteTranscription(Transcription):
     def _define_file(self):
         """Determine whether the file input supplied is local or remote and return its file object.
         """
-        logging.info("Remote resource initialized.")
         if self.download_dir:
             download_dir = self._find_or_create_download_dir(self.download_dir)
         else:

@@ -3,8 +3,8 @@
 """LombardPress print.
 
 Usage:
-  lbp_print (tex|pdf) [options] --local <file>
-  lbp_print (tex|pdf) [options] --scta <expression-id>
+  lbp_print (tex|pdf) [options] --local <file>...
+  lbp_print (tex|pdf) [options] --scta <expression-id>...
 
 Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
@@ -56,26 +56,8 @@ def main():
     logging.basicConfig(level=verbosity.upper(), format="%(levelname)s: %(message)s")
     logging.debug(args)
 
-    logging.info('App initialized.')
-    logging.info('Logging initialized.')
-
-    # Initialize the object
-    if args["--scta"]:
-        transcription = RemoteTranscription(args["<expression-id>"])
-    elif args["--local"]:
-        transcription = LocalTranscription(args["<file>"])
-    else:
-        raise ValueError("Either provide an expression-id or a reference to a local file.")
-
-    # Determine xslt script file (either provided or selected based on the xml transcription)
-    if args["--xslt"]:
-        xslt_candidate = args["--xslt"]
-        if os.path.isfile(xslt_candidate):
-            xslt_script = xslt_candidate
-        else:
-            raise FileNotFoundError(f"The xslt file supplied, {xslt_candidate}, was not found.")
-    else:
-        xslt_script = select_xlst_script(transcription)
+    logging.debug('App initialized.')
+    logging.debug('Logging initialized.')
 
     # Determine output directory
     if args["--output"]:
@@ -83,14 +65,40 @@ def main():
     else:
         output_dir = False
 
-    tex_file = convert_xml_to_tex(transcription.file.name, xslt_script, output_dir, args["--xslt-parameters"])
+    # Initialize the object
+    transcriptions = []
+    if args["--scta"]:
+        for num, exp in enumerate(args["<expression-id>"], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<expression-id>"])}]')
+            transcriptions.append(RemoteTranscription(exp))
+    elif args["--local"]:
+        for num, exp in enumerate(args["<file>"], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
+            transcriptions.append(LocalTranscription(exp))
+    else:
+        raise ValueError("Either provide an expression-id or a reference to a local file.")
 
-    # clean tex file
-    # there could be an option for whether or not a person wants this white space cleaning to take effect
-    output_file = clean_tex(tex_file)
+    for num, item in enumerate(transcriptions, 1):
+    # Determine xslt script file (either provided or selected based on the xml transcription)
+        logging.info('-------')
+        logging.info(f'Processing {item.input}. [{num}/{len(transcriptions)}]')
+        if args["--xslt"]:
+            xslt_candidate = args["--xslt"]
+            if os.path.isfile(xslt_candidate):
+                xslt_script = xslt_candidate
+            else:
+                raise FileNotFoundError(f"The xslt file supplied, {xslt_candidate}, was not found.")
+        else:
+            xslt_script = select_xlst_script(item)
 
-    if args["pdf"]:
-        output_file = compile_tex(tex_file, output_dir)
+        tex_file = convert_xml_to_tex(item.file.name, xslt_script, output_dir, args["--xslt-parameters"])
 
-    logging.info('Results returned sucessfully.\n '
-                 'The output file is located at %s' % output_file.name)
+        # clean tex file
+        # there could be an option for whether or not a person wants this white space cleaning to take effect
+        output_file = clean_tex(tex_file)
+
+        if args["pdf"]:
+            output_file = compile_tex(tex_file, output_dir)
+
+        logging.info('Results returned sucessfully.\n '
+                     'The output file is located at %s' % output_file.name)

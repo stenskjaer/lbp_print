@@ -18,27 +18,34 @@ distribution)[https://www.python.org/downloads/] and follow the instructions.
 
 ## Temporary testing
 
-This solution is good for testing, development and if you would like to try out
+If you want to test or hack on the package, or if you would like to try out
 the script without installing anything permanently on your system,
 a [virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
-setup is the best solution. All the help you need should be in the linked guide.
+setup is the best solution.
 
 To create a virtual environment for the project, run:
 ```bash
-$ mkvirtualenv -p python3 <name>
+$ python3 -m venv <name>
 ```
 
-Where `<name>` is the name you want to give the venv.
+Where `<name>` is the name you want to give the venv. A typical practice is to
+name it `.env` or something like that. It will create a directory in the root of
+the project directory called `.env` which contains the environment.
 
-After activating the virtual environment (`workon` or `source`), install dependencies:
+Now activate the environment:
+```bash
+$ source .env/bin/activate
+```
+
+And install dependencies the dependencies of the script:
 ```bash
 $ pip3 install -r requirements.txt
 ```
 
-You can also make the package globally available (in the virtual environment, if you
-want), but use the `-e` flag during installation to symlink the source files and
-the global CLI. Then if you make any changes in the script, it is available in
-the global CLI. Try it with (from the base dir of the package):
+Now you can make the package globally available (in the virtual environment, if
+you want), but use the `-e` flag during installation to symlink the source files
+and the global CLI. Then if you make any changes in the script, it is available
+in the global CLI. Try it with (from the base dir of the package):
 
 ```bash
 pip install -e .

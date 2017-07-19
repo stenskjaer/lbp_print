@@ -3,18 +3,31 @@ a relevant XSLT script and compile to PDF with XeLaTeX.
 
 
 # Installation
-
-Download the repo. Notice that the xslt is included as submodule
-of [lbp-print-xslt](https://github.com/lombardpress/lbp-print-xslt), so include
-it in cloning by using `--recursive`.
-```
-git clone --recursive https://github.com/stenskjaer/lbp_print.git
-```
-
 The script requires Python 3.6 installed in your system. If you are on a Mac OSX
 machine, and you use [Homebrew](https://brew.sh/), you can run `brew install
 python3`. If you do not use Homebrew, download the (latest official python
 distribution)[https://www.python.org/downloads/] and follow the instructions.
+
+The simplest way to install it is via pypi:
+```
+pip install lbp_print
+```
+
+It will most likely throw an error that it cannot find a version satisfying
+`lbppy>=0.0.0 (from lbp_print)`. You solve that by first installing `lbbpy` from
+the Github repository:
+
+```
+pip install git+https://github.com/lombardpress/lbppy.git@master#egg=lbppy
+````
+
+If you want to clone the repository, notice that the xslt is included as
+submodule of [lbp-print-xslt](https://github.com/lombardpress/lbp-print-xslt),
+so you need to clone with the `--recursive` flag.
+
+```
+git clone --recursive https://github.com/stenskjaer/lbp_print.git
+```
 
 ## Temporary testing
 

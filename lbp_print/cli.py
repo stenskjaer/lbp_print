@@ -23,9 +23,10 @@ Commands:
   recipe <recipe>          Follow recipe in config file at <file> location.
 
 Options:
-  --scta                   Boolean. When True, the <identifier> should be an
+  --scta                   Flag. When present, the <identifier> should be an
                            expression id of the SCTA database.
-  --local                  Boolean. Process local file.
+  --local                  Flag. When present, process local file indicated
+                           by <file> argument.
   --xslt <file>            Use a custom xslt file in place of the default
                            supplied templates.
   --output, -o <dir>       Put results in the specified directory.

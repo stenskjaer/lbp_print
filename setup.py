@@ -26,12 +26,14 @@ setup(name='lbp_print',
       classifiers=[
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.6',
+          'Topic :: Text Processing :: Markup :: XML',
+          'Topic :: Text Processing :: Markup :: LaTeX',
       ],
       entry_points={
           'console_scripts': ['lbp_print=lbp_print.cli:main']
       },
 
-      description='Collection of utility scripts for handling LombardPress material.',
+      description='Script for compiling LombardPress encoded XML documents to TeX and PDF.',
       url='https://github.com/stenskjaer/lbp_print',
       author='Michael Stenskjær Christensen',
       author_email='michael.stenskjaer@gmail.com',

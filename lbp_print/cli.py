@@ -44,18 +44,24 @@ Options:
 
 import logging
 import os
+import json
 
 from docopt import docopt
 
-from lbp_print.core import LocalTranscription, RemoteTranscription, select_xlst_script, clean_tex, \
-    convert_xml_to_tex, compile_tex
+from lbp_print.core import LocalTranscription, RemoteTranscription, Tex
 from lbp_print.__about__ import __version__
 
 def load_config(filename):
     """Load and read in configuration from local config file.
 
     :return Dictionary of the configuration."""
-    import json
+    def expand_in_dict(key, dict):
+        """Expand os user name in dict key."""
+        if key in dict:
+            if isinstance(dict[key], list):
+                return [os.path.expanduser(item) for item in dict[key]]
+            elif isinstance(dict[key], str):
+                return os.path.expanduser(dict[key])
 
     try:
         with open(filename, mode='r') as f:
@@ -67,14 +73,12 @@ def load_config(filename):
                 raise
 
             # Expand user commands in file arguments.
-            print(conf)
-            if '<file>' in conf:
-                conf['<file>'] = [os.path.expanduser(item) for item in conf['<file>']]
-            if '--output' in conf:
-                conf['--output'] = os.path.expanduser(conf['--output'])
+            for key in ['<file>', '--output', '--xslt']:
+                if key in conf:
+                    conf[key] = expand_in_dict(key, conf)
 
             return conf
-    except:
+    except FileNotFoundError:
         logging.warning(f'The config file {filename} was not found. Default settings will be used.')
         return {}
 
@@ -136,23 +140,16 @@ def main():
         # Determine xslt script file (either provided or selected based on the xml transcription)
         logging.info('-------')
         logging.info(f'Processing {item.input}. [{num}/{len(transcriptions)}]')
+
         if args["--xslt"]:
-            xslt_candidate = args["--xslt"]
-            if os.path.isfile(xslt_candidate):
-                xslt_script = xslt_candidate
-            else:
-                raise FileNotFoundError(f"The xslt file supplied, {xslt_candidate}, was not found.")
-        else:
-            xslt_script = select_xlst_script(item)
+            item.xslt = item.select_xlst_script(args["--xslt"])
 
-        tex_file = convert_xml_to_tex(item.file.name, xslt_script, output_dir, args["--xslt-parameters"])
-
-        # clean tex file
-        # there could be an option for whether or not a person wants this white space cleaning to take effect
-        output_file = clean_tex(tex_file)
+        tex_obj = Tex(item, output_dir, args["--xslt-parameters"])
 
         if args["pdf"]:
-            output_file = compile_tex(tex_file, output_dir)
+            output_file = tex_obj.compile()
+        else:
+            output_file = tex_obj.file
 
         logging.info('Results returned sucessfully.\n '
                      'The output file is located at %s' % output_file.name)

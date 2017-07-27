@@ -29,7 +29,8 @@ Options:
                            by <file> argument.
   --xslt <file>            Use a custom xslt file in place of the default
                            supplied templates.
-  --output, -o <dir>       Put results in the specified directory.
+  --output, -o <dir>       Put results in the specified directory [default: .].
+  --cache-dir <dir>        The directory where cached files should be store.
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
                            works with one parameter at the moment.
@@ -48,7 +49,7 @@ import json
 
 from docopt import docopt
 
-from lbp_print.core import LocalTranscription, RemoteTranscription, Tex
+from lbp_print.core import LocalTranscription, RemoteTranscription, Tex, config
 from lbp_print.__about__ import __version__
 
 def load_config(filename):
@@ -69,7 +70,7 @@ def load_config(filename):
                 conf = json.loads(f.read())
             except json.decoder.JSONDecodeError as e:
                 logging.error(f"The config file {f.name} is incorrectly formatted.\n"
-                              f"JSON deconding gave the following error: {e}")
+                              f"JSON decoding gave the following error: {e}")
                 raise
 
             # Expand user commands in file arguments.
@@ -90,10 +91,10 @@ def merge(dict_1, dict_2):
     return dict((str(key), dict_1.get(key) or dict_2.get(key))
                 for key in set(dict_2) | set(dict_1))
 
-def main():
-
-    logging.basicConfig(level='INFO', format="%(levelname)s: %(message)s")
-
+def setup_configuration():
+    """Register command line and config file configuration and update values in `Config` object 
+    in the global variable `config`.
+    """
     # Read command line arguments
     cl_args = docopt(__doc__, version=__version__)
 
@@ -109,29 +110,50 @@ def main():
     # Merge configurations, giving command line arguments priority over config file arguments
     args = merge(cl_args, ini_args)
 
+    if args["pdf"]:
+        output_format = 'pdf'
+    elif args['tex']:
+        output_format = 'tex'
+    else:
+        output_format = None
+
+    config_dict = {
+        'config_file': args['--config-file'],
+        'cache_dir': args['--cache-dir'],
+        'local_file': args['<file>'],
+        'remote_id': args['<expression-id>'],
+        'recipe_file': args['<recipe>'],
+        'xslt_file': args['--xslt'],
+        'xslt_parameters': args['--xslt-parameters'],
+        'output_format': output_format,
+        'output_dir': args['--output'],
+        'verbosity': args['--verbosity'],
+    }
+    config.update(config_dict)
+
+def main():
+
+    logging.basicConfig(format="%(levelname)s: %(message)s")
+
+    setup_configuration()
+
     # Setup logging according to configuration
-    logging.getLogger().setLevel(args['--verbosity'].upper())
+    logging.getLogger().setLevel(config.verbosity.upper())
 
     # Debug startup info
     logging.debug('Logging initialized.')
-    logging.debug(args)
+    logging.debug('Configuration: {}'.format(config.__dict__))
     logging.debug('App initialized.')
-
-    # Determine output directory
-    if args["--output"]:
-        output_dir = args["--output"]
-    else:
-        output_dir = False
 
     # Initialize the object
     transcriptions = []
-    if args["--scta"]:
-        for num, exp in enumerate(args["<expression-id>"], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<expression-id>"])}]')
+    if config.remote_id:
+        for num, exp in enumerate(config.remote_id, 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(config.remote_id)}]')
             transcriptions.append(RemoteTranscription(exp))
-    elif args["--local"]:
-        for num, exp in enumerate(args["<file>"], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
+    elif config.local_file:
+        for num, exp in enumerate(config.local_file, 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(config.local_file)}]')
             transcriptions.append(LocalTranscription(exp))
     else:
         raise ValueError("Either provide an expression-id or a reference to a local file.")
@@ -141,15 +163,11 @@ def main():
         logging.info('-------')
         logging.info(f'Processing {item.input}. [{num}/{len(transcriptions)}]')
 
-        if args["--xslt"]:
-            item.xslt = item.select_xlst_script(args["--xslt"])
+        if config.xslt_file:
+            item.xslt = item.select_xlst_script(config.xslt_file)
 
-        tex_obj = Tex(item, output_dir, args["--xslt-parameters"])
-
-        if args["pdf"]:
-            output_file = tex_obj.compile()
-        else:
-            output_file = tex_obj.file
+        output_file = Tex(item, output_format=config.output_format, output_dir=config.output_dir,
+                          xslt_parameters=config.xslt_parameters)
 
         logging.info('Results returned sucessfully.\n '
-                     'The output file is located at %s' % output_file.name)
+                     'The output file is located at %s' % os.path.abspath(output_file.file))

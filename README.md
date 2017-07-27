@@ -19,7 +19,7 @@ the Github repository:
 
 ```
 pip3 install git+https://github.com/lombardpress/lbppy.git@master#egg=lbppy
-````
+```
 
 If you want to clone the repository, notice that the xslt is included as
 submodule of [lbp-print-xslt](https://github.com/lombardpress/lbp-print-xslt),
@@ -150,11 +150,17 @@ Options:
   -h, --help               Show this help message and exit.
 ```
 
+Unless you specify an output directory with `--output`, the script will put the
+resulting file in the current working directory. This means that if you are on
+the Desktop when calling the script from the command line, that is where the
+file will land after processing.
+
 ## Config files
 
 If you keep passing the same arguments to the script, for instance to your own
-custom xslt script, you might want to use a config file. The config file is
-written in JSON format.
+custom xslt script, you might want to use a config file. 
+
+The config file is written in JSON format.
 
 By default the script looks for at configuration file with the name
 `~/.lbp_print.json`, but if you pass another file path in the `--config-file`
@@ -163,7 +169,7 @@ argument, it will look in that location.
 The default configuration file of the standard options looks like this:
 ```json
 {
-    "--output": "./output",
+    "--output": ".",
     "--config-file": "~/.lbp_print.json",
     "--verbosity": "info"
 }
@@ -192,14 +198,14 @@ Where the content of `~/Desktop/lbp.json` is
         "~/Transcriptions/49-l1q1/da-49-l1q1.xml",
         "~/Transcriptions/49-l3q15/da-49-l3q15.xml"
     ],
-    "--output": "~/Desktop/Dinsdale",
+    "--output": "~/Desktop/testing",
     "--verbosity": "debug"
 }
 ```
 
 Is equivalent to running
 ```bash
-lbp_print pdf --output ~/Desktop/Dinsdale --verbosity debug \
+lbp_print pdf --output ~/Desktop/testing --verbosity debug \
     --local ~/Transcriptions/49-prooemium/da-49-prooemium.xml \
     ~/Transcriptions/49-l1q1/da-49-l1q1.xml \
     ~/Transcriptions/49-l3q15/da-49-l3q15.xml
@@ -209,3 +215,30 @@ Such recipes can be very useful when creating the same group of items with a
 specific configuration multiple times with good confidence that the
 configuration is stable.
 
+## Caching
+
+The module includes a caching feature. It is disabled by default, but if you
+regularly process the same files (either from remote or local sources), this can
+save you a lot of waiting time.
+
+When you configure a cache directory with the option `--cache-dir`, all
+completed files will be stored there and reused whenever the you input an
+exactly identical file to be compiled with exactly the same xslt script.
+
+It works as follows. Whenever an XML file is received, and the proper XSLT
+conversion script is identified, a unique hash value is computed based on the
+content of those two files. This means that as soon as one of those two files
+changes a completely new hash value is produced. Completed `tex` and `pdf` files
+are stored in the `--cache-dir` (using the hash value and file extension as
+basename). Before any processing the script checks whether a file with the
+current hash value is present in the cache. If it finds something, it returns
+that to you and saves you the waiting time of compilation (especially `tex`
+compilations can take annoyingly long time).
+
+The caching system makes sure that only the most recent version of every file
+(based on resource id or file name) is stored to make sure it does not swell
+completely out of proportion. But this also means that the system will identify
+two files with the same filename (not full path, only the name of the file, such
+as `Jandun, question 2.24.xml`) as the same and remove the previous of the two
+from the cache. This will therefore lead to redundant rebuilding and caching
+when you compile different files with the same basename.

@@ -5,12 +5,15 @@
 
 from hashlib import blake2b
 
+import json
 import logging
 import lxml
 import os
 import queue
 import re
+import shutil
 import subprocess
+import tempfile
 import threading
 import urllib
 
@@ -18,9 +21,115 @@ import lbppy
 
 MODULE_DIR = os.path.dirname(__file__)
 
+class Config():
+    """The configuration of the module.
+
+    This object contains all configurable attributes of the module.
+
+    TODO: Add ability to update multiple values with dictionary.
+    """
+    def __init__(self):
+        self.config_file = None
+        self.cache_dir = None
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.local_file = None
+        self.remote_id = None
+        self.recipe_file = None
+        self.xslt_file = None
+        self.xslt_parameters = None
+        self.output_format = None
+        self.output_dir = None
+        self.verbosity = 'info'
+
+    def update(self, dict):
+        for key, val in dict.items():
+            if key in self.__dict__:
+                setattr(self, key, val)
+            else:
+                raise ValueError('The provided key ("{}") is not available on this object. \n'
+                                 'Available keys are {}'.format(key, self.__dict__.keys()))
+
+# Initialize the config and cache objects.
+config = Config()
+
+
+class Cache:
+    """Object storing and verifying data about the cache directory and registry."""
+
+    def __init__(self, directory):
+        self.dir = self.verify_dir(directory)
+        self.registry_file = os.path.join(self.dir, 'registry.json')
+        self.registry = self.open_registry()
+
+    def verify_dir(self, directory):
+        """If a cache dir is specified, check whether it exists."""
+        if directory:
+            candidate = os.path.expanduser(directory)
+            if os.path.isdir(candidate):
+                return os.path.abspath(candidate)
+            else:
+                raise OSError('Specified cache directory (%s) does not exist.' % candidate)
+        else:
+            return None
+
+    def open_registry(self):
+        """If the cache dir is set, identify or create a registry in that dir."""
+        if self.dir:
+            if not os.path.isfile(self.registry_file):
+                with open(self.registry_file, 'w+') as fp:
+                    # Create the file, and to avoid any formatting errors, it gets a bit of content.
+                    json.dump({'key': 'val'}, fp)
+            with open(self.registry_file) as fp:
+                return json.load(fp)
+
+        else:
+            return None
+
+    def update_registry(self, suffixed_id, new):
+        """Update the registry, remove the old version and save the updated registry file.
+        """
+        logging.debug('Updating cache registry.')
+        if suffixed_id in self.registry:
+            prev_ver = self.registry[suffixed_id]
+            self.registry[suffixed_id] = new
+            os.remove(os.path.join(self.dir, prev_ver))
+
+        else:
+            self.registry[suffixed_id] = new
+        with open(self.registry_file, 'w') as fp:
+            json.dump(self.registry, fp)
+
+    def contains(self, basename):
+        """Check whether the hash of the current transcription object is present in the cache
+        directory.
+
+        :return: Bool
+        """
+        location = os.path.join(self.dir, basename)
+        if os.path.isfile(location):
+            return True
+        else:
+            return False
+
+    def store(self, src, dst_digest, src_id, suffix):
+        """Store result in cache dir when applicaple. Remove earlier version of id if present.
+
+        :return: String of cache file or None if no cache dir."""
+        if self.dir:
+            logging.debug('Storing {} in cache dir ({})'.format(src.name, self.dir))
+            try:
+                self.update_registry(src_id + suffix, dst_digest + suffix)
+                return shutil.copyfile(src.name, os.path.join(self.dir, dst_digest + suffix))
+            except:
+                raise
+        else:
+            logging.debug('Cache dir is not set.')
+            return None
+
+
 class Transcription:
 
-    def __init__(self, input, cache=None):
+    def __init__(self, input):
         self.input = input
         self.schema_info = None
         self.file = None
@@ -45,7 +154,7 @@ class Transcription:
         top = os.path.join(MODULE_DIR, 'xslt')
         if xslt_version in os.listdir(top):
             if xslt_document_type + '.xslt' in os.listdir(os.path.join(top, xslt_version)):
-                return open(os.path.join(top, xslt_version, xslt_document_type) + '.xslt')
+                return os.path.abspath(os.path.join(top, xslt_version, xslt_document_type) + '.xslt')
             else:
                 raise FileNotFoundError(f"The file '{xslt_document_type}.xslt' was not found in '\
                                             {os.path.join(top, xslt_version)}.")
@@ -54,9 +163,9 @@ class Transcription:
                 f"A directory for version {xslt_version} was not found in {top}")
 
     def create_hash(self):
-        with open(self.xslt.name, 'br') as f:
+        with open(self.xslt, 'br') as f:
             xslt_digest = blake2b(f.read(), digest_size=16).hexdigest()
-        with open(self.file.name, 'br') as f:
+        with open(self.file, 'br') as f:
             return blake2b(f.read(), digest_size=16, key=xslt_digest.encode('utf-8')).hexdigest()
 
 
@@ -65,18 +174,23 @@ class LocalTranscription(Transcription):
 
     def __init__(self, input):
         Transcription.__init__(self, input)
-        self.file = self.define_file()
+        self.file = self.copy_to_file()
+        self.id = os.path.splitext(os.path.basename(self.input))[0]
         self.schema_info = self.get_schema_info()
         self.xslt = self.select_xlst_script()
         self.digest = self.create_hash()
         logging.debug(f"Local resource initialized. {self.input}")
+        logging.debug("Ojbect dict: {}".format(self.__dict__))
 
-    def define_file(self):
-        """Return the file object.
+    def copy_to_file(self):
+        """Copy the input file to a temporary file object that we can delete later.
+
+        :return: File object.
         """
-        file_argument = self.input
+        file_argument = os.path.expanduser(self.input)
         if os.path.isfile(file_argument):
-            return open(file_argument, encoding='utf-8')
+            shutil.copy(file_argument, config.temp_dir.name)
+            return os.path.join(config.temp_dir.name, os.path.basename(file_argument))
         else:
             raise IOError(f"The supplied argument ({file_argument}) is not a file.")
 
@@ -85,7 +199,7 @@ class LocalTranscription(Transcription):
         # TODO: We need validation of the xml before parsing it. This is necesssary for proper user feedback on errors.
 
         try:
-            schemaref_number = lxml.etree.parse(self.file.name).xpath(
+            schemaref_number = lxml.etree.parse(self.file).xpath(
                 "/tei:TEI/tei:teiHeader[1]/tei:encodingDesc[1]/tei:schemaRef[1]/@n",
                 namespaces={"tei": "http://www.tei-c.org/ns/1.0"}
             )[0]  # The returned result is a list. Grab first element.
@@ -119,7 +233,7 @@ class RemoteTranscription(Transcription):
         self.direct_transcription = False  # Does the input refer directly to a transcription.
         self.transcription_object = self.define_transcription_object()
         self.id = self.input.split('/')[-1]
-        self.file = self.__define_file()
+        self.file = self.download_to_file()
         self.schema_info = self.get_schema_info()
         self.xslt = self.select_xlst_script()
         self.digest = self.create_hash()
@@ -170,20 +284,12 @@ class RemoteTranscription(Transcription):
             self.direct_transcription = True
             return self.resource
 
-    def __define_file(self):
-        """Determine whether the file input supplied is local or remote and return its file object.
-        """
-        if self.download_dir:
-            download_dir = self._find_or_create_download_dir(self.download_dir)
-        else:
-            download_dir = self._find_or_create_download_dir('download')
+    def download_to_file(self):
+        """Download the remote object and store in a temporary file.
 
-        file_path = os.path.join(download_dir, self.id + '.xml')
-        # We are disabling the caching temporarily until we have a better solution.
-        # if os.path.isfile(file_path):
-        #     logging.info(f"Using cached version of ID {self.id}.")
-        #     return open(file_path)
-        # else:
+        :return: File object
+        """
+        tmp_file = open(os.path.join(config.temp_dir.name, 'tmp'), mode='w')
 
         logging.info("Downloading remote resource...")
         if self.direct_transcription:
@@ -193,33 +299,64 @@ class RemoteTranscription(Transcription):
 
         with urllib.request.urlopen(url_object) as response:
             transcription_content = response.read().decode('utf-8')
-            with open(file_path, mode='w', encoding='utf-8') as f:
+            with open(tmp_file.name, mode='w', encoding='utf-8') as f:
                 f.write(transcription_content)
         logging.info("Download of remote resource finished.")
-        return open(f.name)
-
-    def _find_or_create_download_dir(self, download_dir):
-        if os.path.isdir(download_dir):
-            return download_dir
-        else:
-            logging.warn(f'The supplied download directory {download_dir} does not exist. It will be created.')
-            os.mkdir(download_dir)
-            return download_dir
+        return f.name
 
 
 class Tex:
     """Object handling the creation and processing of the TeX representation of the item."""
 
-    def __init__(self, transcription: Transcription, output: str = None,
-                 xslt_parameters: str = None, clean_whitespace: bool =True,
+    def __init__(self, transcription: Transcription, output_format: str = None,
+                 output_dir: str = None, xslt_parameters: str = None, clean_whitespace: bool =True,
                  annotate_samewords: bool =True) -> None:
+        self.id = transcription.id
         self.xml = transcription.file
         self.xslt = transcription.xslt
-        self.output_dir = output
+        self.digest = transcription.digest
+        self.output_format = output_format
+        self.output_dir = output_dir
+        self.cache = Cache(config.cache_dir)
         self.xslt_parameters = xslt_parameters
         self.clean_whitespace = clean_whitespace
         self.annotate_samewords = annotate_samewords
-        self.file = self.clean(self.xml_to_tex())
+        self.file = self.process()
+
+    def process(self):
+        """Convert an XML file to TeX and compile it to PDF with XeLaTeX if required.
+
+        Depending on the requested output format, this returns either a TeX file or a PDF file
+        object.
+
+        :return: File object.
+        """
+
+        def store_output(src, dst_basename):
+            """Store result in output dir when applicaple."""
+            if self.output_dir:
+                logging.debug('Output dir is set to %s' % self.output_dir)
+                try:
+                    return shutil.copyfile(src.name, os.path.join(self.output_dir, dst_basename))
+                except:
+                    raise
+            else:
+                logging.debug('Output dir is not set.')
+
+            return src.name
+
+        output_file = self.clean(self.xml_to_tex())
+
+        if self.output_format == 'pdf':
+            output_file = self.compile(output_file)
+            output_suffix = '.pdf'
+        else:
+            output_suffix = '.tex'
+
+        # All done, now we remove the temporary directory before returning the output file.
+        result_dir = store_output(output_file, self.id + output_suffix)
+        config.temp_dir.cleanup()
+        return result_dir
 
     def xml_to_tex(self):
         """Convert the list of encoded files to tex, using the auxiliary XSLT script.
@@ -233,50 +370,39 @@ class Tex:
     
         Return: File object.
         """
-        logging.info(f"Start conversion of {self.xml.name}...")
 
-        if self.xslt_parameters:
-            process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
-                                        f'-s:{self.xml.name}', f'-xsl:{self.xslt.name}',
-                                        self.xslt_parameters],
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if self.cache.contains(basename=self.digest + '.tex'):
+            logging.info(f"Using cached version of {self.id}.")
+            return open(os.path.join(self.cache.dir, self.digest + '.tex'))
         else:
-            process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
-                                        f'-s:{self.xml.name}', f'-xsl:{self.xslt.name}'],
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            logging.info(f"Start conversion of {self.id}.")
 
-        out, err = process.communicate()
-
-        if err:
-            logging.warning('The XSLT script reported the following warning(s):\n'
-                            + err.decode('utf-8'))
-        tex_buffer = out.decode('utf-8')
-
-        # Output dir preparation: If output flags, check that dir and set, if not,
-        # create or empty the dir "output" in current working dir.
-        if self.output_dir:
-            if os.path.isdir(self.output_dir):
-                output_dir = self.output_dir
+            if self.xslt_parameters:
+                process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
+                                            f'-s:{self.xml}', f'-xsl:{self.xslt}',
+                                            self.xslt_parameters],
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                logging.warning(f'The supplied output directory {self.output_dir} does not exist. '
-                                f'It will be created.')
-                os.mkdir(self.output_dir)
-                output_dir = self.output_dir
-        else:
-            output_dir = 'output'
-            if not output_dir in os.listdir('.'):
-                os.mkdir(output_dir)
-            else:
-                for (root, dirs, files) in os.walk(output_dir):
-                    for name in files:
-                        os.remove(os.path.join(root, name))
+                process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
+                                            f'-s:{self.xml}', f'-xsl:{self.xslt}'],
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = process.communicate()
 
-        # Output file name based on transcription object.
-        basename, _ = os.path.splitext(os.path.basename(self.xml.name))
-        with open(os.path.join(output_dir, basename + '.tex'), mode='w', encoding='utf-8') as f:
-            f.write(tex_buffer)
-        logging.info('The XML was successfully converted.')
-        return f
+            if err:
+                logging.warning('The XSLT script reported the following warning(s):\n'
+                                + err.decode('utf-8'))
+            tex_buffer = out.decode('utf-8')
+
+            # Output file name based on transcription object.
+            temp_location = os.path.join(config.temp_dir.name, self.digest + '.tex')
+            with open(temp_location, mode='w+', encoding='utf-8') as f:
+                f.write(tex_buffer)
+            logging.info('The XML was successfully converted.')
+
+            self.cache.store(f, dst_digest=self.digest, src_id=self.id, suffix='.tex')
+
+            return f
+
 
     def clean(self, tex_file):
         """Orchestrate cleanup of tex file.
@@ -361,16 +487,19 @@ class Tex:
         if self.annotate_samewords:
             # Not implemented yet!
             pass
-
         return tex_file
 
-    def compile(self):
+    def compile(self, input_file):
         """Convert a tex file to pdf with XeLaTeX.
 
         This requires `latexmk` and `xelatex`.
 
         :return: Pdf file object.
         """
+        def clean_tex_dir(directory):
+            for file in os.listdir(directory):
+                if os.path.splitext(file)[1] not in ['.pdf', '.tex']:
+                    os.remove(os.path.join(directory, file))
 
         def read_output(pipe, func):
             for line in iter(pipe.readline, b''):
@@ -381,29 +510,40 @@ class Tex:
             for line in iter(get, None):
                 logging.info(line.decode('utf-8').replace('\n', ''))
 
-        if not self.output_dir:
-            output_dir = os.path.dirname(self.file.name)
+        if self.cache.contains(self.digest + '.pdf'):
+            logging.debug('Using cached pdf.')
+            return open(os.path.join(self.cache.dir, self.digest + '.pdf'))
 
-        logging.info(f"Start compilation of {self.file.name}")
-
-        process = subprocess.Popen(f'latexmk --output-directory={self.output_dir} --xelatex '
-                                   f'--halt-on-error {self.file.name}',
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   shell=True, bufsize=1)
-        q = queue.Queue()
-        out_thread = threading.Thread(target=read_output, args=(process.stdout, q.put))
-        err_thread = threading.Thread(target=read_output, args=(process.stderr, q.put))
-        write_thread = threading.Thread(target=write_output, args=(q.get,))
-
-        for t in (out_thread, err_thread, write_thread):
-            t.start()
-
-        process.wait()
-        q.put(None)
-
-        if process.returncode == 0:
-            output_basename, _ = os.path.splitext(self.file.name)
-            return open(output_basename + '.pdf')
         else:
-            logging.error('The compilation failed. See tex output above for more info.')
-            raise Exception('Latex compilation failed.')
+            logging.info(f"Start compilation of {self.id}")
+
+            process = subprocess.Popen(
+                f'latexmk --pdflatex=xelatex --output-directory={config.temp_dir.name} '
+                f'--halt-on-error '
+                f'{input_file.name}',
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                shell=True, bufsize=1)
+            q = queue.Queue()
+            out_thread = threading.Thread(target=read_output, args=(process.stdout, q.put))
+            err_thread = threading.Thread(target=read_output, args=(process.stderr, q.put))
+            write_thread = threading.Thread(target=write_output, args=(q.get,))
+
+            for t in (out_thread, err_thread, write_thread):
+                t.start()
+
+            process.wait()
+            q.put(None)
+
+            if process.returncode == 0:
+                # Process finished. We clean the tex dir and return the file object from that dir.
+                output_file = open(
+                    os.path.join(
+                        config.temp_dir.name,
+                        os.path.splitext(os.path.basename(input_file.name))[0])
+                    + '.pdf'
+                )
+                self.cache.store(output_file, dst_digest=self.digest, src_id=self.id, suffix='.pdf')
+                return output_file
+            else:
+                logging.error('The compilation failed. See tex output above for more info.')
+                raise Exception('Latex compilation failed.')

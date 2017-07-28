@@ -49,7 +49,7 @@ class Cache:
 
     def __init__(self, directory):
         self.dir = self.verify_dir(directory)
-        self.registry_file = os.path.join(self.dir, 'registry.json')
+        self.registry_file = os.path.join(self.dir, 'registry.json') if self.dir else None
         self.registry = self.open_registry()
 
     def verify_dir(self, directory):
@@ -79,16 +79,17 @@ class Cache:
     def update_registry(self, suffixed_id, new):
         """Update the registry, remove the old version and save the updated registry file.
         """
-        logging.debug('Updating cache registry.')
-        if suffixed_id in self.registry:
-            prev_ver = self.registry[suffixed_id]
-            self.registry[suffixed_id] = new
-            os.remove(os.path.join(self.dir, prev_ver))
+        if self.dir:
+            logging.debug('Updating cache registry.')
+            if suffixed_id in self.registry:
+                prev_ver = self.registry[suffixed_id]
+                self.registry[suffixed_id] = new
+                os.remove(os.path.join(self.dir, prev_ver))
 
-        else:
-            self.registry[suffixed_id] = new
-        with open(self.registry_file, 'w') as fp:
-            json.dump(self.registry, fp)
+            else:
+                self.registry[suffixed_id] = new
+            with open(self.registry_file, 'w') as fp:
+                json.dump(self.registry, fp)
 
     def contains(self, basename):
         """Check whether the hash of the current transcription object is present in the cache
@@ -96,11 +97,12 @@ class Cache:
 
         :return: Bool
         """
-        location = os.path.join(self.dir, basename)
-        if os.path.isfile(location):
-            return True
-        else:
-            return False
+        if self.dir:
+            location = os.path.join(self.dir, basename)
+            if os.path.isfile(location):
+                return True
+            else:
+                return False
 
     def store(self, src, dst_digest, src_id, suffix):
         """Store result in cache dir when applicaple. Remove earlier version of id if present.
@@ -301,7 +303,7 @@ class Tex:
 
     def __init__(self, transcription: Transcription, output_format: str = None,
                  output_dir: str = None, xslt_parameters: str = None, clean_whitespace: bool =True,
-                 annotate_samewords: bool =True) -> None:
+                 annotate_samewords: bool = True) -> None:
         self.id = transcription.id
         self.xml = transcription.file
         self.xslt = transcription.xslt
@@ -312,7 +314,6 @@ class Tex:
         self.xslt_parameters = xslt_parameters
         self.clean_whitespace = clean_whitespace
         self.annotate_samewords = annotate_samewords
-        self.file = self.process()
 
     def process(self):
         """Convert an XML file to TeX and compile it to PDF with XeLaTeX if required.

@@ -29,17 +29,8 @@ class Config():
     TODO: Add ability to update multiple values with dictionary.
     """
     def __init__(self):
-        self.config_file = None
         self.cache_dir = None
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.local_file = None
-        self.remote_id = None
-        self.recipe_file = None
-        self.xslt_file = None
-        self.xslt_parameters = None
-        self.output_format = None
-        self.output_dir = None
-        self.verbosity = 'info'
 
     def update(self, dict):
         for key, val in dict.items():

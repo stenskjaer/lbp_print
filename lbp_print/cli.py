@@ -91,7 +91,7 @@ def merge(dict_1, dict_2):
     return dict((str(key), dict_1.get(key) or dict_2.get(key))
                 for key in set(dict_2) | set(dict_1))
 
-def setup_configuration():
+def setup_arguments():
     """Register command line and config file configuration and update values in `Config` object 
     in the global variable `config`.
     """
@@ -110,35 +110,19 @@ def setup_configuration():
     # Merge configurations, giving command line arguments priority over config file arguments
     args = merge(cl_args, ini_args)
 
-    if args["pdf"]:
-        output_format = 'pdf'
-    elif args['tex']:
-        output_format = 'tex'
-    else:
-        output_format = None
+    if args['--cache-dir']:
+        config.update({'cache_dir': args['--cache-dir']})
 
-    config_dict = {
-        'config_file': args['--config-file'],
-        'cache_dir': args['--cache-dir'],
-        'local_file': args['<file>'],
-        'remote_id': args['<expression-id>'],
-        'recipe_file': args['<recipe>'],
-        'xslt_file': args['--xslt'],
-        'xslt_parameters': args['--xslt-parameters'],
-        'output_format': output_format,
-        'output_dir': args['--output'],
-        'verbosity': args['--verbosity'],
-    }
-    config.update(config_dict)
+    return args
 
 def main():
 
     logging.basicConfig(format="%(levelname)s: %(message)s")
 
-    setup_configuration()
+    args = setup_arguments()
 
     # Setup logging according to configuration
-    logging.getLogger().setLevel(config.verbosity.upper())
+    logging.getLogger().setLevel(args['--verbosity'].upper())
 
     # Debug startup info
     logging.debug('Logging initialized.')
@@ -147,27 +131,32 @@ def main():
 
     # Initialize the object
     transcriptions = []
-    if config.remote_id:
-        for num, exp in enumerate(config.remote_id, 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(config.remote_id)}]')
+    if args['<expression-id>']:
+        for num, exp in enumerate(args['<expression-id>'], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<expression-id>"])}]')
             transcriptions.append(RemoteTranscription(exp))
-    elif config.local_file:
-        for num, exp in enumerate(config.local_file, 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(config.local_file)}]')
+    elif args['<file>']:
+        for num, exp in enumerate(args['<file>'], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
             transcriptions.append(LocalTranscription(exp))
+
+    if args["pdf"]:
+        output_format = 'pdf'
+    elif args['tex']:
+        output_format = 'tex'
     else:
-        raise ValueError("Either provide an expression-id or a reference to a local file.")
+        output_format = None
 
     for num, item in enumerate(transcriptions, 1):
         # Determine xslt script file (either provided or selected based on the xml transcription)
         logging.info('-------')
         logging.info(f'Processing {item.input}. [{num}/{len(transcriptions)}]')
 
-        if config.xslt_file:
-            item.xslt = item.select_xlst_script(config.xslt_file)
+        if args['--xslt']:
+            item.xslt = item.select_xlst_script(args['--xslt'])
 
-        output_file = Tex(item, output_format=config.output_format, output_dir=config.output_dir,
-                          xslt_parameters=config.xslt_parameters)
+        output_file = Tex(item, output_format=output_format, output_dir=args['--output'],
+                          xslt_parameters=args['--xslt-parameters']).process()
 
         logging.info('Results returned sucessfully.\n '
-                     'The output file is located at %s' % os.path.abspath(output_file.file))
+                     'The output file is located at %s' % os.path.abspath(output_file))

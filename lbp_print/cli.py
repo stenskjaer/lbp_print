@@ -3,16 +3,15 @@
 """LombardPress print.
 
 Usage:
-  lbp_print (tex|pdf) [options] --local <file>...
-  lbp_print (tex|pdf) [options] --scta <expression-id>...
+  lbp_print (tex|pdf) [options] (--local|--scta) <identifier>...
   lbp_print recipe <recipe> [options]
 
 Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
 
 Arguments:
-  <file>                   Location of one or more local files to be processed.
-  <expression-id>          The expression id of the items to be processed.
+  <identifier>             File location or SCTA id of one or more objects to
+                           be processed.
 
 Multiple arguments are separated with whitespace.
 
@@ -20,7 +19,7 @@ Commands:
   tex                      Convert the xml to a tex-file.
   pdf                      Convert the xml to a tex-file and compile it into a
                            pdf.
-  recipe <recipe>          Follow recipe in config file at <file> location.
+  recipe <recipe>          Follow recipe in config file in <recipe>.
 
 Options:
   --scta                   Flag. When present, the <identifier> should be an
@@ -89,7 +88,6 @@ def setup_arguments(cl_args):
     """Register command line and config file configuration and update values in `Config` object 
     in the global variable `config`.
     """
-
     # Expand user dir for config file.
     cl_args['--config-file'] = os.path.expanduser(cl_args['--config-file'])
 
@@ -103,7 +101,7 @@ def setup_arguments(cl_args):
     args = merge(cl_args, ini_args)
 
     # Expand user commands in file arguments.
-    for key in ['<file>', '<recipe>', '--output', '--xslt', '--config-file', '--cache-dir']:
+    for key in ['<identifier>', '<recipe>', '--output', '--xslt', '--config-file', '--cache-dir']:
         if key in args:
             args[key] = expand_in_dict(key, args)
 
@@ -118,19 +116,20 @@ def main():
 
     args = setup_arguments(docopt(__doc__, version=__version__))
 
+
     # Setup logging according to configuration
     logging.getLogger().setLevel(args['--verbosity'].upper())
     logging.debug('Logging initialized at debug level.')
 
     # Initialize the object
     transcriptions = []
-    if args['<expression-id>']:
-        for num, exp in enumerate(args['<expression-id>'], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<expression-id>"])}]')
+    if args['--scta']:
+        for num, exp in enumerate(args['<identifier>'], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<identifier>"])}]')
             transcriptions.append(RemoteTranscription(exp))
-    elif args['<file>']:
-        for num, exp in enumerate(args['<file>'], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
+    elif args['--local']:
+        for num, exp in enumerate(args['<identifier>'], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<identifier>"])}]')
             transcriptions.append(LocalTranscription(exp, custom_xslt=args['--xslt']))
 
     if args["pdf"]:

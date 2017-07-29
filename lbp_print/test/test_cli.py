@@ -35,8 +35,7 @@ class TestSetupArgs:
         '--version': False,
         '--xslt': None,
         '--xslt-parameters': None,
-        '<expression-id>': [],
-        '<file>': ['/Users/michael/Documents/PhD/transcriptions/aegidius-expositio/da-199-prol/da-199-prol.xml'],
+        '<identifier>': ['/Users/michael/Documents/PhD/transcriptions/aegidius-expositio/da-199-prol/da-199-prol.xml'],
         '<recipe>': None,
         'pdf': False,
         'recipe': False,
@@ -55,7 +54,7 @@ class TestSetupArgs:
 
     def test_arguments_expansion(self):
         args = {
-            '<file>': '~/hello.xml',
+            '<identifier>': '~/hello.xml',
             '<recipe>': './recipe.json',
             '--output': '~/Desktop',
             '--xslt': './test.xslt',
@@ -65,8 +64,8 @@ class TestSetupArgs:
         expanded = os.path.expanduser('~')
         args = cli.setup_arguments(args)
         assert args['--xslt'] == os.path.join(os.getcwd(), 'test.xslt')
-        assert args['<file>'] == os.path.join(expanded, 'hello.xml')
+        assert args['<identifier>'] == os.path.join(expanded, 'hello.xml')
         assert args['--cache-dir'] == os.path.join(expanded, '.lbp_cache')
         assert args['--config-file'] == os.path.join(expanded, '.lbp_print.json')
-        assert args['<file>'] == os.path.join(expanded, 'hello.xml')
         assert args['--output'] == os.path.join(expanded, 'Desktop')
+        assert args['<recipe>'] == os.path.join(os.getcwd(), 'recipe.json')

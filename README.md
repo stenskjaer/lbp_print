@@ -106,23 +106,24 @@ also need to have a installation of *XeLaTeX*.
 
 The script has two main command `tex` and `pdf`, determining which type of
 output you want. If you want to use a local file, you should use the `--local`
-option pointing to the location of a local file, otherwise you can point to the
-url of a SCTA registered text item with the option `--scta`. 
+flag and let the `<identifier>` be the location of a local file, otherwise you
+can enable the `--scta` flag and let the identifier be an id in the SCTA
+database.
 
 To get a full overview of the options and possible commands, run `lbp_print
 --help`. This will produce this usage guide:
 
 ```
 Usage:
-  lbp_print (tex|pdf) [options] --local <file>...
-  lbp_print (tex|pdf) [options] --scta <expression-id>...
+  lbp_print (tex|pdf) [options] (--local|--scta) <identifier>...
+  lbp_print recipe <recipe> [options]
 
 Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
 
 Arguments:
-  <file>                   Location of one or more local files to be processed.
-  <expression-id>          The expression id of the items to be processed.
+  <identifier>             File location or SCTA id of one or more objects to
+                           be processed.
 
 Multiple arguments are separated with whitespace.
 
@@ -130,20 +131,23 @@ Commands:
   tex                      Convert the xml to a tex-file.
   pdf                      Convert the xml to a tex-file and compile it into a
                            pdf.
+  recipe <recipe>          Follow recipe in config file at <file> location.
 
 Options:
-  --scta                   Boolean. When True, the <identifier> should be an
+  --scta                   Flag. When present, the <identifier> should be an
                            expression id of the SCTA database.
-  --local                  Boolean. Process local file.
+  --local                  Flag. When present, process local file indicated
+                           by <file> argument.
   --xslt <file>            Use a custom xslt file in place of the default
                            supplied templates.
-  --output, -o <dir>       Put results in the specified directory.
+  --output, -o <dir>       Put results in the specified directory [default: .].
+  --cache-dir <dir>        The directory where cached files should be store.
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
                            works with one parameter at the moment.
                            Example: --xslt-parameters "key=value"
-  --config-file <file>     Location of a config file. 
-                           [default: ~/.lbp_print.conf]
+  --config-file <file>     Location of a config file in json format.
+                           [default: ~/.lbp_print.json]
   -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug
                            [default: info].
   -v, --version            Show version and exit.

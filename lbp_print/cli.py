@@ -132,7 +132,7 @@ def main():
     elif args['<file>']:
         for num, exp in enumerate(args['<file>'], 1):
             logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
-            transcriptions.append(LocalTranscription(exp))
+            transcriptions.append(LocalTranscription(exp, custom_xslt=args['--xslt']))
 
     if args["pdf"]:
         output_format = 'pdf'

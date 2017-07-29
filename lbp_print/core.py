@@ -112,7 +112,7 @@ class Transcription:
 
         if external:
             if os.path.isfile(external):
-                return open(external)
+                return open(external).name
             else:
                 raise IOError(f"The supplied argument ({file_argument}) is not a file.")
 
@@ -142,12 +142,12 @@ class Transcription:
 class LocalTranscription(Transcription):
     """Object for handling local files."""
 
-    def __init__(self, input):
+    def __init__(self, input, custom_xslt=None):
         Transcription.__init__(self, input)
         self.file = self.copy_to_file()
         self.id = os.path.splitext(os.path.basename(self.input))[0]
         self.schema_info = self.get_schema_info()
-        self.xslt = self.select_xlst_script()
+        self.xslt = self.select_xlst_script(external=custom_xslt)
         self.digest = self.create_hash()
         logging.debug(f"Local resource initialized. {self.input}")
         logging.debug("Ojbect dict: {}".format(self.__dict__))

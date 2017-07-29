@@ -29,7 +29,7 @@ Options:
   --xslt <file>            Use a custom xslt file in place of the default
                            supplied templates.
   --output, -o <dir>       Put results in the specified directory [default: .].
-  --cache-dir <dir>        The directory where cached files should be store.
+  --cache-dir <dir>        The directory where cached files should be stored.
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
                            works with one parameter at the moment.

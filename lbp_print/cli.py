@@ -67,19 +67,18 @@ def load_config(filename):
 
     try:
         with open(filename, mode='r') as f:
-            try:
-                conf = json.loads(f.read())
-            except json.decoder.JSONDecodeError as e:
-                logging.error(f"The config file {f.name} is incorrectly formatted.\n"
-                              f"JSON decoding gave the following error: {e}")
-                raise
+            conf = json.loads(f.read())
 
-            # Expand user commands in file arguments.
-            for key in ['<file>', '--output', '--xslt']:
-                if key in conf:
-                    conf[key] = expand_in_dict(key, conf)
+        # Expand user commands in file arguments.
+        for key in ['<file>', '--output', '--xslt']:
+            if key in conf:
+                conf[key] = expand_in_dict(key, conf)
 
-            return conf
+        return conf
+    except json.decoder.JSONDecodeError as e:
+        logging.error(f"The config file {f.name} is incorrectly formatted.\n"
+                      f"JSON decoding gave the following error: {e}")
+        raise
     except FileNotFoundError:
         logging.warning(f'The config file {filename} was not found. Default settings will be used.')
         return {}
@@ -92,12 +91,10 @@ def merge(dict_1, dict_2):
     return dict((str(key), dict_1.get(key) or dict_2.get(key))
                 for key in set(dict_2) | set(dict_1))
 
-def setup_arguments():
+def setup_arguments(cl_args):
     """Register command line and config file configuration and update values in `Config` object 
     in the global variable `config`.
     """
-    # Read command line arguments
-    cl_args = docopt(__doc__, version=__version__)
 
     # Expand user dir for config file.
     cl_args['--config-file'] = os.path.expanduser(cl_args['--config-file'])
@@ -120,7 +117,7 @@ def main():
 
     logging.basicConfig(format="%(levelname)s: %(message)s")
 
-    args = setup_arguments()
+    args = setup_arguments(docopt(__doc__, version=__version__))
 
     # Setup logging according to configuration
     logging.getLogger().setLevel(args['--verbosity'].upper())

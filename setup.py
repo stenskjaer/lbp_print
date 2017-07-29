@@ -13,6 +13,9 @@ setup(name='lbp_print',
       dependency_links=[
           "git+https://github.com/lombardpress/lbppy.git@f272e44429fcbd3f19384471c9cfb3903100fb30#egg=lbppy",
       ],
+      tests_require=[
+          'pytest==3.1.3',
+      ],
       install_requires=[
           'docopt==0.6.2',
           'isodate==0.5.4',

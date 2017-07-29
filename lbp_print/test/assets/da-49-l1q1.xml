@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://raw.githubusercontent.com/lombardpress/lombardpress-schema/master/src/out/critical.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://raw.githubusercontent.com/lombardpress/lombardpress-schema/master/src/out/critical.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Quaestiones in libros De anima</title>
+        <author>Johannes Dinsdale</author>
+        <respStmt>
+          <persName>Michael Stenskjær Christensen</persName>
+          <resp>Encoding and transcription</resp>
+        </respStmt>
+      </titleStmt>
+      <editionStmt>
+        <edition n="0.1.1-dev">
+          <date when="2017-05-26"/>
+        </edition>
+      </editionStmt>
+      <publicationStmt>
+        <publisher>Michael Stenskjær Christensen</publisher>
+        <authority>
+          <ref target="http://representationandreality.gu.se">
+            Representation and Reality: Historical and Contemporary Perspectives on the Aristotelian Tradition
+          </ref>
+        </authority>
+        <availability status="free">
+          <p>Published under a <ref
+          target="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative
+          Commons Attribution-NonCommercial-NoDerivs 3.0 License</ref></p>
+        </availability>
+      </publicationStmt>
+      <sourceDesc>
+        <listWit>
+          <witness xml:id="O" n="oriel33">Oxford, Oriel College Library 33, ff. 164r-182v</witness>
+          <witness xml:id="B" n="bal">Oxford, Balliol College 311, ff. 148r--181v</witness>
+        </listWit>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <variantEncoding method="parallel-segmentation" location="internal"/>
+      <schemaRef n="lbp-critical-1.0.0"
+                 url="https://raw.githubusercontent.com/lombardpress/lombardpress-schema/master/src/1.0/critical.rng">
+      </schemaRef>
+      <editorialDecl>
+        <p>
+          Encoding of this text has followed the recommendations of the
+          LombardPress 1.0.0 guidelines for a critical edition
+        </p>
+      </editorialDecl>
+    </encodingDesc>
+    <revisionDesc status="draft">
+      <listChange>
+        <change when="2016-11-13" status="draft" n="0.1.0">
+          <p>First draft of finished edition.</p>
+        </change>
+        <change when="2017-05-26" status="out-for-review" n="0.1.0">
+          <p>The text has been sent for review.</p>
+        </change>
+        <change when="2017-05-26" status="out-for-review" n="0.1.1-dev">
+          <p>Encoding corrections.</p>
+        </change>
+        <change when="2017-07-25" status="out-for-review" n="0.2.0">
+          <p>Revised for second review.</p>
+        </change>
+      </listChange>
+    </revisionDesc>
+  </teiHeader>
+  <text xml:lang="la" type="critical">
+    <front>
+      <div xml:id="starts-on">
+        <pb n="148-v" ed="#B"/><cb ed="#B" n="a"/>
+        <pb n="164-r" ed="#O"/><cb ed="#O" n="b"/>
+      </div>
+    </front>
+    <body>
+      <div xml:id="da-49-l1q1">
+        <head>
+          <supplied ana="#meta-text">
+            Quaestio 1: Utrum de anima possit nobis acquiri scientia
+          </supplied>
+        </head>
+        <p xml:id="da-49-l1q1-274hkz">
+          <app>
+            <lem>Item</lem>
+            <rdg wit="#O">Item</rdg>
+            <rdg wit="#B" type="variation-absent" />
+          </app>
+          quaeratur
+          <app>
+            <lem wit="#O" n="quaeratur"/>
+            <rdg wit="#B" type="variation-present">nunc</rdg>
+          </app>
+          primo utrum de anima possit nobis acquiri scientia.
+        </p>
+        <div ana="#rationes-principales-contra">
+          <p xml:id="da-49-l1q1-j01jdw">
+            Videtur quod non.
+          </p>
+          <p xml:id="da-49-l1q1-ysmgk1" ana="#rationes-principales-contra" n="1">
+            Illud de quo est scientia est intelligibile, quia cum scientia sit
+            habitus intellectus, de quo est scientia oportet esse intelligibile;
+            sed anima non est intelligibile, quia omnis nostra cognitio ortum
+            habet a sensu,
+            <app xml:id="da-49-l1q1-app-pa6tn6">
+              <lem>unde ipsum intelligere non est</lem>
+              <rdg wit="#O">unde ipsum intelligere non est</rdg>
+              <rdg wit="#B">quia nihil intelligimus</rdg>
+            </app>
+            sine phantasmate, sed anima sub
+            sensu non cadit, nec phantasma facit; ergo et cetera.
+          </p>
+          <p xml:id="da-49-l1q1-mjzkyp" ana="#rationes-principales-contra" n="2">
+            Praeterea, unum et idem non potest esse simul movens et motum, quia
+            <app>
+              <lem n="quia"/>
+              <rdg wit="#B" type="variation-present">si</rdg>
+            </app>
+            sic
+            <app>
+              <lem>idem esset</lem>
+              <rdg wit="#O">idem esset</rdg>
+              <rdg wit="#B" type="variation-inversion">esset idem</rdg>
+            </app>
+            actu et potentia respectu eiusdem; sed cognitum est
+            movens respectu cognocentis; ergo unum et idem non potest esse
+            <!-- Next 2: O better as it completes the argument with the transfer
+                 of predicate from the minor. -->
+            <app xml:id="da-49-l1q1-app-18nkzl">
+              <lem>cognoscens</lem>
+              <rdg wit="#O">cognoscens</rdg>
+              <rdg wit="#B">movens</rdg>
+            </app>
+            et
+            <app xml:id="da-49-l1q1-app-87ko58">
+              <lem>cognitum</lem>
+              <rdg wit="#O">cognitum</rdg>
+              <rdg wit="#B">motum sed</rdg>
+            </app>
+            ,
+            <app>
+              <lem n="cognitum"/>
+              <rdg wit="#B" type="variation-present">sed</rdg>
+            </app>
+            hoc tamen contingeret si de anima
+            <app xml:id="da-49-l1q1-app-hptxkl">
+              <lem>esset scientia</lem>
+              <rdg wit="#O">esset scientia</rdg>
+              <rdg wit="#B">cognitionem haberemus</rdg>
+            </app>
+            .
+          </p>
+          <p xml:id="da-49-l1q1-mjgjs9" ana="#rationes-principales-contra" n="3">
+            Praeterea,
+            <cit>
+              <quote type="paraphrase">
+                sicut oculus
+                <app xml:id="da-49-l1q1-app-6ef4va">
+                  <lem>nycticoracis</lem>
+                  <rdg wit="#B">nycticoracis</rdg>
+                  <rdg wit="#O">vespertilionis</rdg>
+                </app>
+                <app xml:id="da-49-l1q1-app-qzz9yj">
+                  <lem type="conjecture-supplied">
+                    <supplied ana="#in-vacuo">se habet</supplied>
+                  </lem>
+                  <rdg wit="#B">
+                    <space extent="8" unit="letters" />
+                  </rdg>
+                  <rdg wit="#O" type="variation-absent"/>
+                  <witDetail wit="#B">spat. vac. 8 litt.</witDetail>
+                </app>
+                ad lumen solis, sic intellectus noster ad ea quae sunt
+                manifestissima in natura
+              </quote>
+              <bibl>
+                Cf. Arist. <title ref="#Arist.Metaph"> Metaph.</title> II.1
+                993b9--11 (νυκτερίς).
+              </bibl>
+            </cit>
+            , de quorum numero est anima,
+            <app>
+              <lem>saltim</lem>
+              <rdg wit="#O">saltim</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            humana; sed oculus nycticoracis non potest apprehendere lumen solis;
+            ergo et cetera.
+          </p>
+          <p xml:id="da-49-l1q1-xdpfxs" ana="#rationes-principales-contra" n="4">
+            Praeterea, nostrum intelligere est cum continuo et tempore; sed
+            anima, cum sit indivisibilis et perpetua, nec est continua nec
+            temporalis; ergo et cetera.
+          </p>
+        </div>
+        <div ana="#rationes-principales-pro">
+          <p xml:id="da-49-l1q1-o9whrl">
+            Oppositum patet per
+            <app>
+              <lem>determinationem <name ref="#Aristotle">Philosophi</name></lem>
+              <rdg wit="#O">determinationem <name ref="#Aristotle">Philosophi</name></rdg>
+              <rdg wit="#B">Philosophum</rdg>
+            </app>
+            .
+          </p>
+        </div>
+        <div ana="#determinatio">
+          <p xml:id="da-49-l1q1-ywem12" ana="#determinatio" n="1">
+            Dicendum quod cum scientia sit habitus acquisitus per
+            demonstrationem, et ad demonstrationem tria requirantur (
+            <app>
+              <lem>scilicet</lem>
+              <rdg wit="#O">scilicet</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            subiectum, passio, et
+            principium per quod ostenditur passio de subiecto), ubi est
+            <app xml:id="da-49-l1q1-app-5d63kk">
+              <lem>invenire ista tria</lem>
+              <rdg wit="#O">invenire ista tria</rdg>
+              <rdg wit="#B" type="variation-inversioner">
+                <seg>ista tria</seg>
+                <seg>invenire</seg>
+              </rdg>
+            </app>
+            , ibi
+            <app xml:id="da-49-l1q1-app-eje7pm">
+              <lem>contingit ponere scientiam</lem>
+              <rdg wit="#O">contingit ponere scientiam</rdg>
+              <rdg wit="#B">est scientiam ponere</rdg>
+            </app>
+            . Nunc autem anima
+            <app>
+              <lem>quoddam subiectum est</lem>
+              <rdg wit="#O">quoddam subiectum est</rdg>
+              <rdg wit="#B">est quoddam ens</rdg>
+            </app>
+            cuius sunt
+            <app>
+              <lem>multae</lem>
+              <rdg wit="#O">multae</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            proprietates et passiones, ut patebit inferius. Sunt etiam
+            principia per quae
+            <app>
+              <lem>istae passiones probari possunt</lem>
+              <rdg wit="#O">istae passiones probari possunt</rdg>
+              <rdg wit="#B">ostendi possunt istae passiones</rdg>
+            </app>
+            de anima. Si enim accipiatur quod quid est animae pro medio,
+            <app xml:id="da-49-l1q1-app-k2lfc9">
+              <!-- O more explicit/clear -->
+              <lem>per ipsum</lem>
+              <rdg wit="#O">per ipsum</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            concludi potest propria passio eius de anima, et ita de anima potest
+            <app>
+              <lem>aliquid sciri sive</lem>
+              <rdg wit="#O">aliquid sciri sive</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            esse aliqualis scientia.
+          </p>
+          <p xml:id="da-49-l1q1-t57fj3" ana="#determinatio" n="2">
+            Praeterea, accidentia non sunt
+            <app>
+              <lem>per se entia</lem>
+              <rdg wit="#O" type="variation-inversion">per se entia</rdg>
+              <rdg wit="#B">
+                <seg>entia</seg>
+                <seg>per se</seg>
+              </rdg>
+            </app>
+            , sed in alio. Qui ergo cognoscit accidentia, manuduci potest in
+            cognitionem eius cuius sunt. Nunc autem multa accidentia ipsius
+            animae nobis sunt manifesta: Operationes
+            <app>
+              <lem>enim</lem>
+              <rdg wit="#O">enim</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            artificiales nobis notae sunt, quae
+            <app>
+              <lem>tamen</lem>
+              <rdg wit="#O">tamen</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            non fiunt absque intelligere, et
+            intelligere procedit ab aliqua potentia, et potentia
+            <app xml:id="da-49-l1q1-app-mqmbne">
+              <lem>fluit</lem>
+              <rdg wit="#O">fluit</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            ab essentia;
+            <app>
+              <lem>et sic est de aliis</lem>
+              <rdg wit="#O">et sic est de aliis</rdg>
+              <rdg wit="#B">eodem modo est de</rdg>
+            </app>
+            operationibus quae procedunt ab irascibili. Unde per multa
+            <!--
+                Here O actually solves our problem and hints at the diplomatic
+                reading in B. Based on this reading I would say that O is a
+                slightly better text
+            -->
+            <app xml:id="da-49-l1q1-app-b1mson">
+              <lem>quae nobis nota sunt</lem>
+              <rdg wit="#O">quae nobis nota sunt</rdg>
+              <rdg wit="#B">nobis</rdg>
+            </app>
+            devenire
+            <app>
+              <lem>possumus</lem>
+              <rdg wit="#O">possumus</rdg>
+              <rdg wit="#B">possunt</rdg>
+            </app>
+            in cognitionem animae. Quia tamen scire est
+            <app xml:id="da-49-l1q1-app-3bjjzt">
+              <lem wit="#B">causam rei</lem>
+              <rdg wit="#O">per causam</rdg>
+            </app>
+            cognoscere
+            <!-- Auct. Arist. 35.8, cf. Arist. APo I.2 71b10-12, cf. also
+                 Metaph. II.1 -->
+            , et talis
+            <app xml:id="da-49-l1q1-app-gfllzy">
+              <lem>cognitio de anima</lem>
+              <rdg wit="#O">cognitio de anima</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            procedit per effectus
+            <app>
+              <lem>et</lem>
+              <rdg wit="#O">et</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            non per causam, ideo <name ref="#Aristotle">Philosophus</name> talem
+            cognitionem tradens de anima
+            <app>
+              <lem>istam cognitionem nominat</lem>
+              <rdg wit="#O">istam cognitionem nominat</rdg>
+              <rdg wit="#B">ipsam vocat</rdg>
+            </app>
+            <cit>
+              <quote>historiam</quote>
+              <bibl>Arist. <title ref="#Arist.DA">DA</title> I.1 402a4.</bibl>
+            </cit>
+            . Extensive tamen dici potest scientia.
+          </p>
+        </div>
+        <div ana="#ad-rationes-contra">
+          <p xml:id="da-49-l1q1-1mle08" ana="#ad-rationes-contra" n="1">
+            Ad primum argumentum dicendum
+            <app>
+              <lem>quod minor est falsa</lem>
+              <rdg wit="#O">quod minor est falsa</rdg>
+              <rdg wit="#B">per interemptionem minoris</rdg>
+            </app>
+            .
+            <app>
+              <lem>Et</lem>
+              <rdg wit="#O">Et</rdg>
+              <rdg wit="#B" type="variation-absent" />
+            </app>
+            ad probationem dicendum quod
+            <app xml:id="da-49-l1q1-app-yl5yi8">
+              <lem>aliquid</lem>
+              <rdg wit="#O">aliquid</rdg>
+              <rdg wit="#B">aliquod</rdg>
+            </app>
+            cadit <cb ed="#B" n="b"/> in sensu dupliciter: aut per positionem aut
+            <app>
+              <lem>per</lem>
+              <rdg wit="#B">per</rdg>
+              <rdg wit="#O" type="variation-absent"/>
+            </app>
+            privationem. Per privationem sicut tenebra et indivisibilia, ut
+            punctum et unitas. Per positionem contingit dupliciter, aut per
+            speciem sui, aut per speciem alterius; per speciem sui
+            <app>
+              <lem>sicut</lem>
+              <rdg wit="#O">sicut</rdg>
+              <rdg wit="#B">ut</rdg>
+            </app>
+            color videtur,
+            <cit>
+              <quote type="paraphrase">
+                per speciem alterius
+                <app>
+                  <lem>sicut</lem>
+                  <rdg wit="#O">sicut</rdg>
+                  <rdg wit="#B">ut</rdg>
+                </app>
+                <app xml:id="da-49-l1q1-app-tjx5f0">
+                  <lem>videtur</lem>
+                  <rdg wit="#O">videtur</rdg>
+                  <rdg wit="#B" type="variation-absent"/>
+                </app>
+                <name ref="#Diares"> Diari</name> filius
+              </quote>
+              <bibl>Arist. <title ref="#Arist.DA">DA</title> II.6 418a20--22.</bibl>
+            </cit>
+            . Unde, licet anima non cadat
+            sub sensu per
+            <app xml:id="da-49-l1q1-app-o6vevk">
+              <!-- Here O clearly better -->
+              <lem>se</lem>
+              <rdg wit="#O">se</rdg>
+              <rdg wit="#B">rei</rdg>
+            </app>
+            ,
+            <app xml:id="da-49-l1q1-app-r2io0f">
+              <lem type="conjecture-corrected"><corr>cadit</corr></lem>
+              <rdg wit="#B #O">cadat</rdg>
+            </app>
+            tamen sub sensu per alterum, ut per sui effectus,
+            <app>
+              <lem>et</lem>
+              <rdg wit="#O">et</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            eodem modo, licet per se phantasma non faciat,
+            <app>
+              <lem type="conjecture-corrected"><corr>aliud</corr></lem>
+              <rdg wit="#O #B">aliquid</rdg>
+            </app>
+            tamen phantasma facit, quod in eius cognitionem ducere potest.
+          </p>
+          <p xml:id="da-49-l1q1-i9rohp" ana="#ad-rationes-contra" n="2">
+            Ad
+            <app>
+              <lem>aliud</lem>
+              <rdg wit="#O">aliud</rdg>
+              <rdg wit="#B">secundum</rdg>
+            </app>
+            dicendum quod
+            <app>
+              <lem>dupliciter dicitur motus</lem>
+              <rdg wit="#O">dupliciter dicitur motus</rdg>
+              <rdg wit="#B">motus dicitur dupliciter</rdg>
+            </app>
+            : uno modo est actus imperfecti,
+            <app>
+              <lem wit="#O">et sic</lem>
+              <rdg wit="#B">sicut</rdg>
+            </app>
+            definitur
+            <app>
+              <lem>a <name ref="#Aristotle">Philosopho</name> in</lem>
+              <rdg wit="#O">a Philosopho in</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            <cit>
+              <ref>tertio <title ref="#Arist.Phys">Physicorum</title>;</ref>
+              <bibl>Arist. <title ref="#Arist.Phys">Phys.</title> III.2
+              201b31--33.</bibl>
+            </cit>
+            alio modo est actus perfecti;
+            <app>
+              <lem wit="#O">sic</lem>
+              <rdg wit="#B">sicut</rdg>
+            </app>
+            intelligere et
+            <app xml:id="da-49-l1q1-app-o28m47">
+              <lem>cognoscere</lem>
+              <rdg wit="#B">cognoscere</rdg>
+              <rdg wit="#O">sentire</rdg>
+            </app>
+            dicuntur motus: Primo modo non potest idem esse movens et motum per se, per
+            accidens tamen nihil prohibet, sicut nauta
+            <app>
+              <lem>movet navem per se</lem>
+              <rdg wit="#O">movet navem per se</rdg>
+              <rdg wit="#B" type="variation-inversion">
+                <seg>per se</seg>
+                <seg>movet navem</seg>
+              </rdg>
+            </app>
+            ,
+            <app>
+              <lem>qua mota movet seipsum</lem>
+              <rdg wit="#O">qua mota movet seipsum</rdg>
+              <rdg wit="#B"> et motu navi movetur per accidens</rdg>
+            </app>
+            . Secundo modo nihil prohibet idem
+            <app xml:id="da-49-l1q1-app-633yrw">
+              <lem>movere se ipsum</lem>
+              <rdg wit="#O">movere se ipsum</rdg>
+              <rdg wit="#B">esse movens et motum respectu sui ipsius</rdg>
+            </app>
+            . Sed tamen differentia est: aliqua
+            <app>
+              <lem>enim</lem>
+              <rdg wit="#O">enim</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            est substantia semper actu intelligens, et talis
+            <app>
+              <lem>substantia</lem>
+              <rdg wit="#B">substantia</rdg>
+              <rdg wit="#O" type="variation-absent" />
+            </app>
+            potest intelligere se per se,
+            <app xml:id="da-49-l1q1-app-05821q">
+              <lem>sicut est de prima causa et intelligentiis</lem>
+              <rdg wit="#O">sed est de prima causa et intelligentiis</rdg>
+              <rdg wit="#B" type="variation-absent" />
+            </app>
+            ; sed aliqua est
+            <app xml:id="da-49-l1q1-app-bnz3xq">
+              <lem wit="#O" n="est"/>
+              <rdg wit="#B" type="variation-present">substantia</rdg>
+            </app>
+            non semper actu intelligens,
+            <app xml:id="da-49-l1q1-app-as4rnu">
+              <lem>sicut est anima humana</lem>
+              <rdg wit="#O">sicut est anima humana</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            , et talis
+            <app xml:id="da-49-l1q1-app-1w0l0f">
+              <lem wit="#B">substantia</lem>
+              <rdg wit="#O" type="variation-absent"/>
+            </app>
+            <app>
+              <lem>non intelligit</lem>
+              <rdg wit="#O">non intelligit</rdg>
+              <rdg wit="#B">non potest intelligere</rdg>
+            </app>
+            se per se, quia nihil intelligitur nisi
+            secundum quod actu est, et talis substantia, cum sit in potentia
+            intelligens
+            <app xml:id="da-49-l1q1-app-bc6142">
+              <lem>
+                non est in actu nisi per alterum, ut per speciem intelligibilem, ideo
+              </lem>
+              <rdg wit="#O">
+                non est in actu nisi per alterum, ut per speciem intelligibilem, ideo
+              </rdg>
+              <rdg wit="#B">per speciem alterius</rdg>
+            </app>
+            per alterum potest
+            <app>
+              <lem>se</lem>
+              <rdg wit="#O">se</rdg>
+              <rdg wit="#B">seipsum</rdg>
+            </app>
+            intelligere. Per hoc enim quod anima intelligit obiectum per speciem
+            potest intelligere suum actum, et per actum potest reflectere
+            <app>
+              <lem>se</lem>
+              <rdg wit="#O">se</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            supra suam essentiam;
+            <app xml:id="da-49-l1q1-app-99tkjl">
+              <lem>
+                unde anima nostra quodammodo intelligit se sicut nauta movet navem
+              </lem>
+              <rdg wit="#O">
+                unde anima nostra quodammodo intelligit se sicut nauta movet navem
+              </rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            .
+          </p>
+          <p xml:id="da-49-l1q1-52psh5" ana="#ad-rationes-contra" n="3">
+            Ad
+            <app>
+              <lem>aliud</lem>
+              <rdg wit="#O">aliud</rdg>
+              <rdg wit="#B">tertium</rdg>
+            </app>
+            dicendum quod licet oculus nycticoracis non possit apprehendere
+            directe lumen solis,
+            <app>
+              <lem>
+                potest tamen indirecte aliquam claritatem apprehendere
+              </lem>
+              <rdg wit="#O">
+                potest tamen indirecte aliquam claritatem apprehendere
+              </rdg>
+              <rdg wit="#B">aliquem tamen effectum eius potest apprehendere</rdg>
+            </app>
+            , et si visus
+            <app>
+              <lem>eius</lem>
+              <rdg wit="#O">eius</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            esset discursivus,
+            <app xml:id="da-49-l1q1-app-ss4j7m">
+              <!-- O supplies the reading we had conjectured -->
+              <lem>posset</lem>
+              <rdg wit="#O">posset</rdg>
+              <rdg wit="#B">possit</rdg>
+            </app>
+            <app>
+              <lem>cognoscere</lem>
+              <rdg wit="#O">cognoscere</rdg>
+              <rdg wit="#B">intelligere</rdg>
+            </app>
+            lumen solis. Nunc
+            <app>
+              <lem>autem, etsi</lem>
+              <rdg wit="#O">autem, etsi</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            intellectus noster
+            <app>
+              <lem wit="#B" n="noster"/>
+              <rdg wit="#O" type="correction-deletion"><del>etsi</del></rdg>
+            </app>
+            non
+            <app xml:id="da-49-l1q1-app-d8u1cl">
+              <lem type="conjecture-corrected"><corr>potest</corr></lem>
+              <rdg wit="#O">posset</rdg>
+              <rdg wit="#B">possit</rdg>
+            </app>
+            <app xml:id="da-49-l1q1-app-wajnh7">
+              <lem wit="#O" n="potest"/>
+              <rdg wit="#B" type="variation-present">directe</rdg>
+            </app>
+            in cognitionem
+            <app>
+              <lem>perfectam</lem>
+              <rdg wit="#O">perfectam</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            substantiarum separatarum, tamen
+            <app xml:id="da-49-l1q1-app-zq4kdv">
+              <lem>
+                aliqui effectus earum apparent nobis,
+                <app>
+                  <lem>per quos manuducimur in earum notitiam</lem>
+                  <rdg wit="#O" type="correction-addition">
+                    <add place="right-margin">per quos manuducimur in earum notitiam</add>
+                  </rdg>
+                </app>
+              </lem>
+              <rdg wit="#O" ana="#lemma">
+                aliqui effectus earum apparent nobis, per quos manuducimur in
+                earum notitiam
+              </rdg>
+              <rdg wit="#B">potest in effectus earum</rdg>
+            </app>
+            ,
+            et quia intellectus noster est discursivus, ideo
+            <app>
+              <lem>potest</lem>
+              <rdg wit="#O">potest</rdg>
+              <rdg wit="#B">per effectus possumus</rdg>
+            </app>
+            in
+            <app xml:id="da-49-l1q1-app-yq0rb5">
+              <!-- B is better here -->
+              <lem>aliqualem</lem>
+              <rdg wit="#B">aliqualem</rdg>
+              <rdg wit="#O">aliqualiter</rdg>
+            </app>
+            cognitionem
+            <app>
+              <!-- This makes O and B equivalent with the reading above (per
+                   effectus...) -->
+              <lem>earum ut per effectus</lem>
+              <rdg wit="#O">earum ut per effectus</rdg>
+              <rdg wit="#B">substantiarum separatarum</rdg>
+            </app>
+            . Magis <pb ed="#O" n="164-v"/><cb ed="#O" n="a"/> tamen cognoscimus
+            de anima quam de
+            <app xml:id="da-49-l1q1-app-26i4eh">
+              <!-- B better here. -->
+              <lem>substantiis</lem>
+              <rdg wit="#B">substantiis</rdg>
+              <rdg wit="#O">aliis</rdg>
+            </app>
+            separatis, quia effectus
+            <app>
+              <lem>ipsius</lem>
+              <rdg wit="#O">ipsius</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            animae
+            <app xml:id="da-49-l1q1-app-li4ovm">
+              <lem>nobis apparentes</lem>
+              <rdg wit="#O">nobis apparentes</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            magis adaequant virtutem eius quam effectus
+            <app>
+              <lem wit="#B" n="effectus"/>
+              <rdg wit="#O" type="variation-present">quae</rdg>
+            </app>
+            substantiarum separatarum
+            <app>
+              <lem>nobis apparentes</lem>
+              <rdg wit="#O">nobis apparentes</rdg>
+              <rdg wit="#B" type="variation-absent"/>
+            </app>
+            <app xml:id="da-49-l1q1-app-bene1c">
+              <lem>adaequant virtutem earum</lem>
+              <rdg wit="#B">adaequant virtutem earum</rdg>
+              <rdg wit="#O" type="variation-absent"/>
+            </app>
+            .
+          </p>
+          <p xml:id="da-49-l1q1-h6ks8n" ana="#ad-rationes-contra" n="4">
+            Ad aliud dicendum quod
+            <app>
+              <lem>intelligere nostrum</lem>
+              <rdg wit="#O">intelligere nostrum</rdg>
+              <rdg wit="#B" type="variation-inversion">nostrum intelligere</rdg>
+            </app>
+            non est sine
+            <app xml:id="da-49-l1q1-app-mvv35w">
+              <lem wit="#O" n="sine" />
+              <rdg wit="#B" type="variation-present">phantasmate</rdg>
+            </app>
+            continuo et tempore, quia non est sine phantasmate. Non tamen oportet
+            <app xml:id="da-49-l1q1-app-l0y465">
+              <!-- This, combined with next, make two quite different meanings...
+                   B: not necessary that all that is known by us is continuus and
+                   temporal.
+                   O: not necessary that all knowing is continuus and temporal.
+                   I think O is better here, and also fits the argument better: Some
+                   acts of thought don't require temporality.-->
+              <lem wit="#O" n="oportet"/>
+              <rdg wit="#B" type="variation-present">quod</rdg>
+            </app>
+            omne
+            <app xml:id="da-49-l1q1-app-mmea7s">
+              <lem>intelligere esse</lem>
+              <rdg wit="#O">intelligere esse</rdg>
+              <rdg wit="#B">
+                quod a nobis est quocumque modo intelligibile sit
+              </rdg>
+            </app>
+            continuum et
+            <app xml:id="da-49-l1q1-app-a7va9c">
+              <lem>temporale</lem>
+              <rdg wit="#O">temporale</rdg>
+              <rdg wit="#B">temporalis</rdg>
+            </app>
+            .
+          </p>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>

@@ -372,6 +372,76 @@ class Tex:
 
             return f
 
+    def whitespace_cleanup(self, tex_file):
+        """Clean the content of the tex file for different whitespace problems.
+
+        :return: File object of the tex file after cleanup.
+        """
+
+        logging.info("Trying to remove whitespace...")
+        patterns = [
+            (r' ?{ ?', r'{'),  # Remove redundant space around opening bracket.
+            (r' }', r'}'),  # Remove redundant space before closing bracket.
+            (r' ([.,?!:;])', r'\1'),  # Remove redundant space before punctuation.
+            (r' (\\edtext{})', r'\1'),  # Remove space before empty lemma app notes.
+            (r'}(\\edtext{[^}]})', r'} \1'),  # Add missing space between adjacent app. notes.
+            (r' +', ' '),  # Remove excessive whitespace.
+            (r'} ([.,?!:;])', r'}\1'),
+            # Remove redundant space between closing brackets. and punctuation.
+            (r'^ +', r''),  # Remove leading space at beginning of line.
+            (r' %$', '%'),  # Remove trailing whitespace at paragraph end.
+            ('\( ', r'('),  # Remove trailing whitespace inside parenthesis.
+            # NASTY!!!
+            # quia\edtext{}{\lemma{\textnormal{quia}} => \edtext{quia}{\lemma{\textnormal{quia}}
+            (r'(\w+)\\edtext{}{\\lemma{\1}', r'\\edtext{\1}{\\lemma{\1}'),
+
+            # Replace anything wrapped in quotes ("...") with \enquote{...}. This is a bit
+            # dangerous as it assumes that the editor always balances his quotes,
+            # and we cannot be sure of that. The proper way to do this would be with a stack
+            # tracking opening and closing quotes and alerting user on unbalanced quotes.
+            # That would of course require a separate function. Would it reduce performance
+            # significantly?
+            (r'"([^"]+?)"', r'\\enquote{\1}'),
+        ]
+
+        # I don't like the need to go through new file. Could/should we try with a temporary
+        # IO object in memory (buffer size would probably not become a real problem).
+        fname = tex_file.name
+        orig_fname = fname + '.orig'
+
+        # Rename original tex file into a .tex.orig file
+        try:
+            os.rename(fname, orig_fname)
+        except IOError:
+            raise IOError("Could not create temp file for cleaning.")
+
+        # Open original file in read only mode
+        try:
+            fi = open(orig_fname, mode='r', encoding='utf-8')
+        except IOError:
+            raise IOError("Could not open file.")
+
+        # Create a new file that will contain the clean text
+        try:
+            fo = open(fname, mode='w', encoding='utf-8')
+        except IOError:
+            raise IOError("Could not create temp file for cleaning.")
+
+        with fi, fo:
+            for line in fi.readlines():
+                for pattern, replacement in patterns:
+                    line = re.sub(pattern, replacement, line)
+                fo.write(line)
+
+        # First check that the new file exists before deleting the old one
+        if os.path.isfile(fname):
+            try:
+                os.remove(orig_fname)
+            except IOError:
+                logging.warning("Could not delete temp file. Continuing...")
+
+        logging.info('Whitespace removed.')
+        return fo
 
     def clean(self, tex_file):
         """Orchestrate cleanup of tex file.
@@ -380,79 +450,9 @@ class Tex:
 
         :return: File object of the text file after cleanup.
         """
-        def whitespace_cleanup(self, tex_file):
-            """Clean the content of the tex file for different whitespace problems.
-
-            :return: File object of the tex file after cleanup.
-            """
-
-            logging.info("Trying to remove whitespace...")
-            patterns = [
-                (r' ?{ ?', r'{'),  # Remove redundant space around opening bracket.
-                (r' }', r'}'),  # Remove redundant space before closing bracket.
-                (r' ([.,?!:;])', r'\1'),  # Remove redundant space before punctuation.
-                (r' (\\edtext{})', r'\1'),  # Remove space before empty lemma app notes.
-                (r'}(\\edtext{[^}]})', r'} \1'),  # Add missing space between adjacent app. notes.
-                (r' +', ' '),  # Remove excessive whitespace.
-                (r'} ([.,?!:;])', r'}\1'),
-                # Remove redundant space between closing brackets. and punctuation.
-                (r'^ +', r''),  # Remove leading space at beginning of line.
-                (r' %$', '%'),  # Remove trailing whitespace at paragraph end.
-                ('\( ', r'('),  # Remove trailing whitespace inside parenthesis.
-                # NASTY!!!
-                # quia\edtext{}{\lemma{\textnormal{quia}} => \edtext{quia}{\lemma{\textnormal{quia}}
-                (r'(\w+)\\edtext{}{\\lemma{\1}', r'\\edtext{\1}{\\lemma{\1}'),
-
-                # Replace anything wrapped in quotes ("...") with \enquote{...}. This is a bit
-                # dangerous as it assumes that the editor always balances his quotes,
-                # and we cannot be sure of that. The proper way to do this would be with a stack
-                # tracking opening and closing quotes and alerting user on unbalanced quotes.
-                # That would of course require a separate function. Would it reduce performance
-                # significantly?
-                (r'"([^"]+?)"', r'\\enquote{\1}'),
-            ]
-
-            # I don't like the need to go through new file. Could/should we try with a temporary
-            # IO object in memory (buffer size would probably not become a real problem).
-            fname = tex_file.name
-            orig_fname = fname + '.orig'
-
-            # Rename original tex file into a .tex.orig file
-            try:
-                os.rename(fname, orig_fname)
-            except IOError:
-                raise IOError("Could not create temp file for cleaning.")
-
-            # Open original file in read only mode
-            try:
-                fi = open(orig_fname, mode='r', encoding='utf-8')
-            except IOError:
-                raise IOError("Could not open file.")
-
-            # Create a new file that will contain the clean text
-            try:
-                fo = open(fname, mode='w', encoding='utf-8')
-            except IOError:
-                raise IOError("Could not create temp file for cleaning.")
-
-            with fi, fo:
-                for line in fi.readlines():
-                    for pattern, replacement in patterns:
-                        line = re.sub(pattern, replacement, line)
-                    fo.write(line)
-
-            # First check that the new file exists before deleting the old one
-            if os.path.isfile(fname):
-                try:
-                    os.remove(orig_fname)
-                except IOError:
-                    logging.warning("Could not delete temp file. Continuing...")
-
-            logging.info('Whitespace removed.')
-            return fo
 
         if self.clean_whitespace:
-            tex_file = whitespace_cleanup(self, tex_file)
+            tex_file = self.whitespace_cleanup(tex_file)
         if self.annotate_samewords:
             # Not implemented yet!
             pass

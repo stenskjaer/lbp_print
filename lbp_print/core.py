@@ -13,35 +13,12 @@ import queue
 import re
 import shutil
 import subprocess
-import tempfile
 import threading
 import urllib
 
 import lbppy
 
-MODULE_DIR = os.path.dirname(__file__)
-
-class Config():
-    """The configuration of the module.
-
-    This object contains all configurable attributes of the module.
-
-    TODO: Add ability to update multiple values with dictionary.
-    """
-    def __init__(self):
-        self.cache_dir = None
-        self.temp_dir = tempfile.TemporaryDirectory()
-
-    def update(self, dict):
-        for key, val in dict.items():
-            if key in self.__dict__:
-                setattr(self, key, val)
-            else:
-                raise ValueError('The provided key ("{}") is not available on this object. \n'
-                                 'Available keys are {}'.format(key, self.__dict__.keys()))
-
-# Initialize the config and cache objects.
-config = Config()
+from lbp_print import config
 
 
 class Cache:
@@ -144,7 +121,7 @@ class Transcription:
         else:
             xslt_document_type = 'diplomatic'
         xslt_version = self.schema_info['version']
-        top = os.path.join(MODULE_DIR, 'xslt')
+        top = os.path.join(config.module_dir, 'xslt')
         if xslt_version in os.listdir(top):
             if xslt_document_type + '.xslt' in os.listdir(os.path.join(top, xslt_version)):
                 return os.path.abspath(os.path.join(top, xslt_version, xslt_document_type) + '.xslt')
@@ -370,12 +347,12 @@ class Tex:
             logging.info(f"Start conversion of {self.id}.")
 
             if self.xslt_parameters:
-                process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
+                process = subprocess.Popen(['java', '-jar', os.path.join(config.module_dir, 'vendor/saxon9he.jar'),
                                             f'-s:{self.xml}', f'-xsl:{self.xslt}',
                                             self.xslt_parameters],
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                process = subprocess.Popen(['java', '-jar', os.path.join(MODULE_DIR, 'vendor/saxon9he.jar'),
+                process = subprocess.Popen(['java', '-jar', os.path.join(config.module_dir, 'vendor/saxon9he.jar'),
                                             f'-s:{self.xml}', f'-xsl:{self.xslt}'],
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = process.communicate()

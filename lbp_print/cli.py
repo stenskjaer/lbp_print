@@ -49,7 +49,8 @@ import json
 
 from docopt import docopt
 
-from lbp_print.core import LocalTranscription, RemoteTranscription, Tex, config
+from lbp_print import config
+from lbp_print.core import LocalTranscription, RemoteTranscription, Tex
 from lbp_print.__about__ import __version__
 
 def load_config(filename):
@@ -111,7 +112,7 @@ def setup_arguments():
     args = merge(cl_args, ini_args)
 
     if args['--cache-dir']:
-        config.update({'cache_dir': args['--cache-dir']})
+        config.cache_dir = args['--cache-dir']
 
     return args
 
@@ -123,11 +124,7 @@ def main():
 
     # Setup logging according to configuration
     logging.getLogger().setLevel(args['--verbosity'].upper())
-
-    # Debug startup info
-    logging.debug('Logging initialized.')
-    logging.debug('Configuration: {}'.format(config.__dict__))
-    logging.debug('App initialized.')
+    logging.debug('Logging initialized at debug level.')
 
     # Initialize the object
     transcriptions = []

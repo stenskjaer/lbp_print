@@ -57,23 +57,9 @@ def load_config(filename):
     """Load and read in configuration from local config file.
 
     :return Dictionary of the configuration."""
-    def expand_in_dict(key, dict):
-        """Expand os user name in dict key."""
-        if key in dict:
-            if isinstance(dict[key], list):
-                return [os.path.expanduser(item) for item in dict[key]]
-            elif isinstance(dict[key], str):
-                return os.path.expanduser(dict[key])
-
     try:
         with open(filename, mode='r') as f:
             conf = json.loads(f.read())
-
-        # Expand user commands in file arguments.
-        for key in ['<file>', '--output', '--xslt']:
-            if key in conf:
-                conf[key] = expand_in_dict(key, conf)
-
         return conf
     except json.decoder.JSONDecodeError as e:
         logging.error(f"The config file {f.name} is incorrectly formatted.\n"
@@ -91,6 +77,14 @@ def merge(dict_1, dict_2):
     return dict((str(key), dict_1.get(key) or dict_2.get(key))
                 for key in set(dict_2) | set(dict_1))
 
+def expand_in_dict(key, dict):
+    """Expand os user name in dict key."""
+    if key in dict:
+        if isinstance(dict[key], list):
+            return [os.path.abspath(os.path.expanduser(item)) for item in dict[key]]
+        elif isinstance(dict[key], str):
+            return os.path.abspath(os.path.expanduser(dict[key]))
+
 def setup_arguments(cl_args):
     """Register command line and config file configuration and update values in `Config` object 
     in the global variable `config`.
@@ -107,6 +101,11 @@ def setup_arguments(cl_args):
 
     # Merge configurations, giving command line arguments priority over config file arguments
     args = merge(cl_args, ini_args)
+
+    # Expand user commands in file arguments.
+    for key in ['<file>', '<recipe>', '--output', '--xslt', '--config-file', '--cache-dir']:
+        if key in args:
+            args[key] = expand_in_dict(key, args)
 
     if args['--cache-dir']:
         config.cache_dir = args['--cache-dir']

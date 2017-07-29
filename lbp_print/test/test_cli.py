@@ -1,4 +1,5 @@
 import json
+import os
 
 import docopt
 
@@ -51,3 +52,21 @@ class TestSetupArgs:
         cli.setup_arguments(args)
         assert config.cache_dir == '/Users/michael/.lbp_cache'
         assert args['--config-file'] == '/Users/michael/.lbp_print.json'
+
+    def test_arguments_expansion(self):
+        args = {
+            '<file>': '~/hello.xml',
+            '<recipe>': './recipe.json',
+            '--output': '~/Desktop',
+            '--xslt': './test.xslt',
+            '--cache-dir': '~/.lbp_cache',
+            '--config-file': '~/.lbp_print.json',
+        }
+        expanded = os.path.expanduser('~')
+        args = cli.setup_arguments(args)
+        assert args['--xslt'] == os.path.join(os.getcwd(), 'test.xslt')
+        assert args['<file>'] == os.path.join(expanded, 'hello.xml')
+        assert args['--cache-dir'] == os.path.join(expanded, '.lbp_cache')
+        assert args['--config-file'] == os.path.join(expanded, '.lbp_print.json')
+        assert args['<file>'] == os.path.join(expanded, 'hello.xml')
+        assert args['--output'] == os.path.join(expanded, 'Desktop')

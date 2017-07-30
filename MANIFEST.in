@@ -1,1 +1,3 @@
-recursive-include lbp_print/xslt *.xslt
+recursive-include lbp_print/xslt *
+include lbp_print/vendor *
+include README.rst

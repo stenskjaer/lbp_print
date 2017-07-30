@@ -35,6 +35,7 @@ setup(name='lbp_print',
       entry_points={
           'console_scripts': ['lbp_print=lbp_print.cli:main']
       },
+      include_package_data=True,
 
       description='Script for compiling LombardPress encoded XML documents to TeX and PDF.',
       url='https://github.com/stenskjaer/lbp_print',

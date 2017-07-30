@@ -345,6 +345,7 @@ class Tex:
             return open(os.path.join(self.cache.dir, self.digest + '.tex'))
         else:
             logging.info(f"Start conversion of {self.id}.")
+            logging.debug(f"Using XSLT: {self.xslt}.")
 
             if self.xslt_parameters:
                 process = subprocess.Popen(['java', '-jar', os.path.join(config.module_dir, 'vendor/saxon9he.jar'),

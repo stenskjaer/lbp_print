@@ -28,7 +28,7 @@ Options:
                            by <file> argument.
   --xslt <file>            Use a custom xslt file in place of the default
                            supplied templates.
-  --output, -o <dir>       Put results in the specified directory [default: .].
+  --output, -o <dir>       Put results in the specified directory.
   --cache-dir <dir>        The directory where cached files should be stored.
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
@@ -94,8 +94,10 @@ def setup_arguments(cl_args):
     # Read config file or recipe
     if cl_args['<recipe>']:
         ini_args = load_config(cl_args['<recipe>'])
+        logging.debug(f'Recipe loaded with these values. {ini_args}')
     else:
         ini_args = load_config(cl_args['--config-file'])
+        logging.debug(f'Config file loaded with these values. {ini_args}')
 
     # Merge configurations, giving command line arguments priority over config file arguments
     args = merge(cl_args, ini_args)
@@ -115,7 +117,6 @@ def main():
     logging.basicConfig(format="%(levelname)s: %(message)s")
 
     args = setup_arguments(docopt(__doc__, version=__version__))
-
 
     # Setup logging according to configuration
     logging.getLogger().setLevel(args['--verbosity'].upper())

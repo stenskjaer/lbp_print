@@ -4,6 +4,7 @@
 """
 
 from hashlib import blake2b
+from tempfile import TemporaryDirectory
 
 import json
 import logging
@@ -103,6 +104,7 @@ class Transcription:
         self.input = input
         self.schema_info = None
         self.file = None
+        self.tmp_dir = TemporaryDirectory()
 
     def select_xlst_script(self, external=None):
         """Determine which xslt should be used.
@@ -159,8 +161,8 @@ class LocalTranscription(Transcription):
         """
         file_argument = os.path.expanduser(self.input)
         if os.path.isfile(file_argument):
-            shutil.copy(file_argument, config.temp_dir.name)
-            return os.path.join(config.temp_dir.name, os.path.basename(file_argument))
+            shutil.copy(file_argument, self.tmp_dir.name)
+            return os.path.join(self.tmp_dir.name, os.path.basename(file_argument))
         else:
             raise IOError(f"The supplied argument ({file_argument}) is not a file.")
 
@@ -259,7 +261,7 @@ class RemoteTranscription(Transcription):
 
         :return: File object
         """
-        tmp_file = open(os.path.join(config.temp_dir.name, 'tmp'), mode='w')
+        tmp_file = open(os.path.join(self.temp_dir.name, 'tmp'), mode='w')
 
         logging.info("Downloading remote resource...")
         if self.direct_transcription:
@@ -285,6 +287,7 @@ class Tex:
         self.xml = transcription.file
         self.xslt = transcription.xslt
         self.digest = transcription.digest
+        self.tmp_dir = transcription.tmp_dir
         self.output_format = output_format
         self.output_dir = output_dir
         self.cache = Cache(config.cache_dir)
@@ -324,7 +327,7 @@ class Tex:
 
         # All done, now we remove the temporary directory before returning the output file.
         result_dir = store_output(output_file, self.id + output_suffix)
-        config.temp_dir.cleanup()
+        self.tmp_dir.cleanup()
         return result_dir
 
     def xml_to_tex(self):
@@ -364,7 +367,7 @@ class Tex:
             tex_buffer = out.decode('utf-8')
 
             # Output file name based on transcription object.
-            temp_location = os.path.join(config.temp_dir.name, self.digest + '.tex')
+            temp_location = os.path.join(self.tmp_dir.name, self.digest + '.tex')
             with open(temp_location, mode='w+', encoding='utf-8') as f:
                 f.write(tex_buffer)
             logging.info('The XML was successfully converted.')
@@ -488,7 +491,7 @@ class Tex:
             logging.info(f"Start compilation of {self.id}")
 
             process = subprocess.Popen(
-                f'latexmk --pdflatex=xelatex --output-directory={config.temp_dir.name} '
+                f'latexmk --pdflatex=xelatex --output-directory={self.tmp_dir.name} '
                 f'--halt-on-error '
                 f'{input_file.name}',
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -508,7 +511,7 @@ class Tex:
                 # Process finished. We clean the tex dir and return the file object from that dir.
                 output_file = open(
                     os.path.join(
-                        config.temp_dir.name,
+                        self.tmp_dir.name,
                         os.path.splitext(os.path.basename(input_file.name))[0])
                     + '.pdf'
                 )

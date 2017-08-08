@@ -6,5 +6,4 @@ import os
 import tempfile
 
 cache_dir = None
-temp_dir = tempfile.TemporaryDirectory()
 module_dir = os.path.dirname(__file__)

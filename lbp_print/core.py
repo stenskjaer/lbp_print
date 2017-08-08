@@ -152,7 +152,7 @@ class LocalTranscription(Transcription):
         self.xslt = self.select_xlst_script(external=custom_xslt)
         self.digest = self.create_hash()
         logging.debug(f"Local resource initialized. {self.input}")
-        logging.debug("Ojbect dict: {}".format(self.__dict__))
+        logging.debug("Object dict: {}".format(self.__dict__))
 
     def copy_to_file(self):
         """Copy the input file to a temporary file object that we can delete later.
@@ -210,7 +210,7 @@ class RemoteTranscription(Transcription):
         self.xslt = self.select_xlst_script()
         self.digest = self.create_hash()
         logging.debug("Remote resource initialized.")
-        logging.debug("Ojbect dict: {}".format(self.__dict__))
+        logging.debug("Object dict: {}".format(self.__dict__))
 
     def get_schema_info(self):
         """Return the validation schema version."""

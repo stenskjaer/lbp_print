@@ -395,9 +395,7 @@ class Tex:
             (r'^ +', r''),  # Remove leading space at beginning of line.
             (r' %$', '%'),  # Remove trailing whitespace at paragraph end.
             ('\( ', r'('),  # Remove trailing whitespace inside parenthesis.
-            # NASTY!!!
-            # quia\edtext{}{\lemma{\textnormal{quia}} => \edtext{quia}{\lemma{\textnormal{quia}}
-            (r'(\w+)\\edtext{}{\\lemma{\1}', r'\\edtext{\1}{\\lemma{\1}'),
+            ('([_\^])', r'\\\1'),  # Escape _ and ^ characters.
 
             # Replace anything wrapped in quotes ("...") with \enquote{...}. This is a bit
             # dangerous as it assumes that the editor always balances his quotes,

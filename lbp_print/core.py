@@ -197,7 +197,7 @@ class RemoteTranscription(Transcription):
     input -- SCTA resource id of the text to be processed.
     """
 
-    def __init__(self, input, download_dir=False):
+    def __init__(self, input, custom_xslt=None):
         Transcription.__init__(self, input)
         self.input = input
         self.download_dir = False
@@ -207,7 +207,7 @@ class RemoteTranscription(Transcription):
         self.id = self.input.split('/')[-1]
         self.file = self.download_to_file()
         self.schema_info = self.get_schema_info()
-        self.xslt = self.select_xlst_script()
+        self.xslt = self.select_xlst_script(external=custom_xslt)
         self.digest = self.create_hash()
         logging.debug("Remote resource initialized.")
         logging.debug("Object dict: {}".format(self.__dict__))

@@ -128,6 +128,7 @@ def main():
     if args['--scta']:
         for num, exp in enumerate(args['<id>'], 1):
             logging.info(f'Initializing {exp}. [{num}/{len(args["<id>"])}]')
+            transcriptions.append(RemoteTranscription(exp, custom_xslt=args['--xslt']))
     elif args['--local']:
         for num, exp in enumerate(args['<file>'], 1):
             logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')

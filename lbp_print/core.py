@@ -261,7 +261,7 @@ class RemoteTranscription(Transcription):
 
         :return: File object
         """
-        tmp_file = open(os.path.join(self.temp_dir.name, 'tmp'), mode='w')
+        tmp_file = open(os.path.join(self.tmp_dir.name, 'tmp'), mode='w')
 
         logging.info("Downloading remote resource...")
         if self.direct_transcription:

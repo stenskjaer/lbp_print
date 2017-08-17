@@ -3,15 +3,16 @@
 """LombardPress print.
 
 Usage:
-  lbp_print (tex|pdf) [options] (--local|--scta) <identifier>...
+  lbp_print (tex|pdf) [options] --local <file>...
+  lbp_print (tex|pdf) [options] --scta <id>...
   lbp_print recipe <recipe> [options]
 
 Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
 
 Arguments:
-  <identifier>             File location or SCTA id of one or more objects to
-                           be processed.
+  <identifier>             File location of one or more objects to be processed.
+  <id>                     SCTA id of one or more objects to be processed.
 
 Multiple arguments are separated with whitespace.
 
@@ -125,12 +126,11 @@ def main():
     # Initialize the object
     transcriptions = []
     if args['--scta']:
-        for num, exp in enumerate(args['<identifier>'], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<identifier>"])}]')
-            transcriptions.append(RemoteTranscription(exp))
+        for num, exp in enumerate(args['<id>'], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<id>"])}]')
     elif args['--local']:
-        for num, exp in enumerate(args['<identifier>'], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<identifier>"])}]')
+        for num, exp in enumerate(args['<file>'], 1):
+            logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
             transcriptions.append(LocalTranscription(exp, custom_xslt=args['--xslt']))
 
     if args["pdf"]:

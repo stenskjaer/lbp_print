@@ -382,7 +382,7 @@ class Tex:
         :return: File object of the tex file after cleanup.
         """
 
-        logging.info("Trying to remove whitespace...")
+        logging.debug("Trying to remove whitespace...")
         patterns = [
             (r' ?{ ?', r'{'),  # Remove redundant space around opening bracket.
             (r' }', r'}'),  # Remove redundant space before closing bracket.
@@ -442,7 +442,7 @@ class Tex:
             except IOError:
                 logging.warning("Could not delete temp file. Continuing...")
 
-        logging.info('Whitespace removed.')
+        logging.debug('Whitespace removed.')
         return fo
 
     def clean(self, tex_file):

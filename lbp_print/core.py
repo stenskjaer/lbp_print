@@ -122,17 +122,17 @@ class Transcription:
             xslt_document_type = 'critical'
         else:
             xslt_document_type = 'diplomatic'
-        xslt_version = self.schema_info['version']
+        xslt_ver = self.schema_info['version']
         top = os.path.join(config.module_dir, 'xslt')
-        if xslt_version in os.listdir(top):
-            if xslt_document_type + '.xslt' in os.listdir(os.path.join(top, xslt_version)):
-                return os.path.abspath(os.path.join(top, xslt_version, xslt_document_type) + '.xslt')
+        if xslt_ver in os.listdir(top):
+            if xslt_document_type + '.xslt' in os.listdir(os.path.join(top, xslt_ver)):
+                return os.path.abspath(os.path.join(top, xslt_ver, xslt_document_type) + '.xslt')
             else:
                 raise FileNotFoundError(f"The file '{xslt_document_type}.xslt' was not found in '\
-                                            {os.path.join(top, xslt_version)}.")
+                                            {os.path.join(top, xslt_ver)}.")
         else:
             raise NotADirectoryError(
-                f"A directory for version {xslt_version} was not found in {top}")
+                f"A directory for version {xslt_ver} was not found in {top}")
 
     def create_hash(self):
         with open(self.xslt, 'br') as f:
@@ -168,7 +168,8 @@ class LocalTranscription(Transcription):
 
     def get_schema_info(self):
         """Return the validation schema version."""
-        # TODO: We need validation of the xml before parsing it. This is necesssary for proper user feedback on errors.
+        # TODO: We need validation of the xml before parsing it. This is necesssary for proper user
+        # feedback on errors.
 
         try:
             schemaref_number = lxml.etree.parse(self.file).xpath(
@@ -181,8 +182,9 @@ class LocalTranscription(Transcription):
             }
         except IndexError as e:
             logging.error('The document does not seem to contain a value in '
-                          'TEI/teiHeader/encodingDesc/schemaRef[@n]. See the LombardPress documentation for help. '
-                          'If the problem persists, please submit an issue report.')
+                          'TEI/teiHeader/encodingDesc/schemaRef[@n]. See the LombardPress '
+                          'documentation for help. If the problem persists, please submit an issue '
+                          'report.')
             raise
         except Exception as e:
             logging.error('The process resulted in an error: {}.\n '
@@ -281,7 +283,7 @@ class Tex:
     """Object handling the creation and processing of the TeX representation of the item."""
 
     def __init__(self, transcription: Transcription, output_format: str = None,
-                 output_dir: str = None, xslt_parameters: str = None, clean_whitespace: bool =True,
+                 output_dir: str = None, xslt_parameters: str = None, clean_whitespace: bool = True,
                  annotate_samewords: bool = True) -> None:
         self.id = transcription.id
         self.xml = transcription.file
@@ -351,12 +353,14 @@ class Tex:
             logging.debug(f"Using XSLT: {self.xslt}.")
 
             if self.xslt_parameters:
-                process = subprocess.Popen(['java', '-jar', os.path.join(config.module_dir, 'vendor/saxon9he.jar'),
+                process = subprocess.Popen(['java', '-jar',
+                                            os.path.join(config.module_dir, 'vendor/saxon9he.jar'),
                                             f'-s:{self.xml}', f'-xsl:{self.xslt}',
                                             self.xslt_parameters],
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                process = subprocess.Popen(['java', '-jar', os.path.join(config.module_dir, 'vendor/saxon9he.jar'),
+                process = subprocess.Popen(['java', '-jar',
+                                            os.path.join(config.module_dir, 'vendor/saxon9he.jar'),
                                             f'-s:{self.xml}', f'-xsl:{self.xslt}'],
                                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = process.communicate()

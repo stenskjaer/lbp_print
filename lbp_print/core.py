@@ -460,11 +460,10 @@ class Tex:
 
         else:
             logging.info(f"Start compilation of {self.id}")
-
             process = subprocess.Popen(
                 f'latexmk --xelatex --output-directory={self.tmp_dir.name} '
                 f'--halt-on-error '
-                f'{input_file.name}',
+                f'{re.escape(input_file.name)}',
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                 shell=True, bufsize=1)
             q = queue.Queue()

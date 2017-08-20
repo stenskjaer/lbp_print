@@ -406,44 +406,17 @@ class Tex:
             (r'"([^"]+?)"', r'\\enquote{\1}'),
         ]
 
-        # I don't like the need to go through new file. Could/should we try with a temporary
-        # IO object in memory (buffer size would probably not become a real problem).
-        fname = tex_file.name
-        orig_fname = fname + '.orig'
+        with open(tex_file.name) as f:
+            buffer = f.read()
 
-        # Rename original tex file into a .tex.orig file
-        try:
-            os.rename(fname, orig_fname)
-        except IOError:
-            raise IOError("Could not create temp file for cleaning.")
+        for pattern, replacement in patterns:
+            buffer = re.sub(pattern, replacement, buffer, flags=re.MULTILINE)
 
-        # Open original file in read only mode
-        try:
-            fi = open(orig_fname, mode='r', encoding='utf-8')
-        except IOError:
-            raise IOError("Could not open file.")
-
-        # Create a new file that will contain the clean text
-        try:
-            fo = open(fname, mode='w', encoding='utf-8')
-        except IOError:
-            raise IOError("Could not create temp file for cleaning.")
-
-        with fi, fo:
-            for line in fi.readlines():
-                for pattern, replacement in patterns:
-                    line = re.sub(pattern, replacement, line)
-                fo.write(line)
-
-        # First check that the new file exists before deleting the old one
-        if os.path.isfile(fname):
-            try:
-                os.remove(orig_fname)
-            except IOError:
-                logging.warning("Could not delete temp file. Continuing...")
+        with open(tex_file.name, 'w') as f:
+            f.write(buffer)
 
         logging.debug('Whitespace removed.')
-        return fo
+        return tex_file
 
     def clean(self, tex_file):
         """Orchestrate cleanup of tex file.

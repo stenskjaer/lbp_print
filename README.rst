@@ -136,15 +136,16 @@ To get a full overview of the options and possible commands, run
 ::
 
     Usage:
-      lbp_print (tex|pdf) [options] (--local|--scta) <identifier>...
+      lbp_print (tex|pdf) [options] --local <file>...
+      lbp_print (tex|pdf) [options] --scta <id>...
       lbp_print recipe <recipe> [options]
 
     Pull LBP-compliant files from SCTA repositories or use local, convert them into
     tex or pdf.
 
     Arguments:
-      <identifier>             File location or SCTA id of one or more objects to
-                               be processed.
+      <identifier>             File location of one or more objects to be processed.
+      <id>                     SCTA id of one or more objects to be processed.
 
     Multiple arguments are separated with whitespace.
 
@@ -152,7 +153,7 @@ To get a full overview of the options and possible commands, run
       tex                      Convert the xml to a tex-file.
       pdf                      Convert the xml to a tex-file and compile it into a
                                pdf.
-      recipe <recipe>          Follow recipe in config file at <file> location.
+      recipe <recipe>          Follow recipe in config file in <recipe>.
 
     Options:
       --scta                   Flag. When present, the <identifier> should be an
@@ -161,7 +162,8 @@ To get a full overview of the options and possible commands, run
                                by <file> argument.
       --xslt <file>            Use a custom xslt file in place of the default
                                supplied templates.
-      --output, -o <dir>       Put results in the specified directory [default: .].
+      --output, -o <dir>       Put results in the specified directory.
+                               [default: .]
       --cache-dir <dir>        The directory where cached files should be stored.
       --xslt-parameters <str>  Command line parameters that will be
                                passed to the XSLT script. Unfortunately, this only

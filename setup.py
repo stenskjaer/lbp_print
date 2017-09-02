@@ -37,7 +37,13 @@ setup(name='lbp_print',
       },
       include_package_data=True,
 
-      description='Script for compiling LombardPress encoded XML documents to TeX and PDF.',
+      description='Script for compiling LombardPress encoded XML documents to '
+                  'TeX and PDF.',
+      long_description='``lbp_print`` is a small utility for processing a '
+                       'LombardPress valid XML text with a relevant XSLT '
+                       'script and compile to PDF with XeLaTeX. For more '
+                       'info, see `the Github page '
+                       '<https://github.com/stenskjaer/lbp_print>`__',
       url='https://github.com/stenskjaer/lbp_print',
       author='Michael Stenskjær Christensen',
       author_email='michael.stenskjaer@gmail.com',

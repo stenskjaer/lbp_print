@@ -30,6 +30,7 @@ Options:
   --xslt <file>            Use a custom xslt file in place of the default
                            supplied templates.
   --output, -o <dir>       Put results in the specified directory.
+                           [default: .]
   --cache-dir <dir>        The directory where cached files should be stored.
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
@@ -86,7 +87,7 @@ def expand_in_dict(key, dict):
             return os.path.abspath(os.path.expanduser(dict[key]))
 
 def setup_arguments(cl_args):
-    """Register command line and config file configuration and update values in `Config` object 
+    """Register command line and config file configuration and update values in `Config` object
     in the global variable `config`.
     """
     # Expand user dir for config file.

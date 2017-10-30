@@ -1,8 +1,6 @@
 import json
 import os
 
-import docopt
-
 from lbp_print import cli
 from lbp_print import config
 
@@ -54,7 +52,7 @@ class TestSetupArgs:
 
     def test_arguments_expansion(self):
         args = {
-            '<identifier>': '~/hello.xml',
+            '<file>': '~/hello.xml',
             '<recipe>': './recipe.json',
             '--output': '~/Desktop',
             '--xslt': './test.xslt',
@@ -64,7 +62,7 @@ class TestSetupArgs:
         expanded = os.path.expanduser('~')
         args = cli.setup_arguments(args)
         assert args['--xslt'] == os.path.join(os.getcwd(), 'test.xslt')
-        assert args['<identifier>'] == os.path.join(expanded, 'hello.xml')
+        assert args['<file>'] == os.path.join(expanded, 'hello.xml')
         assert args['--cache-dir'] == os.path.join(expanded, '.lbp_cache')
         assert args['--config-file'] == os.path.join(expanded, '.lbp_print.json')
         assert args['--output'] == os.path.join(expanded, 'Desktop')

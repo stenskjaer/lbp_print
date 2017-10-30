@@ -11,7 +11,7 @@ Pull LBP-compliant files from SCTA repositories or use local, convert them into
 tex or pdf.
 
 Arguments:
-  <identifier>             File location of one or more objects to be processed.
+  <file>                   File location of one or more objects to be processed.
   <id>                     SCTA id of one or more objects to be processed.
 
 Multiple arguments are separated with whitespace.
@@ -23,8 +23,8 @@ Commands:
   recipe <recipe>          Follow recipe in config file in <recipe>.
 
 Options:
-  --scta                   Flag. When present, the <identifier> should be an
-                           expression id of the SCTA database.
+  --scta                   Flag. When present, the <id> should be an expression
+                           id of the SCTA database.
   --local                  Flag. When present, process local file indicated
                            by <file> argument.
   --xslt <file>            Use a custom xslt file in place of the default
@@ -105,7 +105,7 @@ def setup_arguments(cl_args):
     args = merge(cl_args, ini_args)
 
     # Expand user commands in file arguments.
-    for key in ['<identifier>', '<recipe>', '--output', '--xslt', '--config-file', '--cache-dir']:
+    for key in ['<file>', '<recipe>', '--output', '--xslt', '--config-file', '--cache-dir']:
         if key in args:
             args[key] = expand_in_dict(key, args)
 

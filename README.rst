@@ -126,7 +126,7 @@ Usage
 
 The script has two main command ``tex`` and ``pdf``, determining which
 type of output you want. If you want to use a local file, you should use
-the ``--local`` flag and let the ``<identifier>`` be the location of a
+the ``--local`` flag and let the ``<file>`` be the location of a
 local file, otherwise you can enable the ``--scta`` flag and let the
 identifier be an id in the SCTA database.
 
@@ -144,7 +144,7 @@ To get a full overview of the options and possible commands, run
     tex or pdf.
 
     Arguments:
-      <identifier>             File location of one or more objects to be processed.
+      <file>                   File location of one or more objects to be processed.
       <id>                     SCTA id of one or more objects to be processed.
 
     Multiple arguments are separated with whitespace.
@@ -156,7 +156,7 @@ To get a full overview of the options and possible commands, run
       recipe <recipe>          Follow recipe in config file in <recipe>.
 
     Options:
-      --scta                   Flag. When present, the <identifier> should be an
+      --scta                   Flag. When present, the <id> should be an
                                expression id of the SCTA database.
       --local                  Flag. When present, process local file indicated
                                by <file> argument.

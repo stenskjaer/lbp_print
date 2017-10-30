@@ -334,14 +334,14 @@ class Tex:
 
     def xml_to_tex(self):
         """Convert the list of encoded files to tex, using the auxiliary XSLT script.
-    
+
         The function creates a output dir in the current working dir and puts the tex file in that
         directory. The function requires saxon installed.
-    
+
         Keyword Arguments:
         xml_buffer -- the content of the xml file under conversion
         xslt_script -- the content of the xslt script used for the conversion
-    
+
         Return: File object.
         """
 

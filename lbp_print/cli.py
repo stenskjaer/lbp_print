@@ -29,8 +29,8 @@ Options:
                            by <file> argument.
   --xslt <file>            Use a custom xslt file in place of the default
                            supplied templates.
-  --output, -o <dir>       Put results in the specified directory.
-                           [default: .]
+  --output, -o <dir>       Put results in the specified directory. If nothing is
+                           set, it will output to current working dir.
   --cache-dir <dir>        The directory where cached files should be stored.
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
@@ -70,14 +70,6 @@ def load_config(filename):
         logging.warning(f'The config file {filename} was not found. Default settings will be used.')
         return {}
 
-def merge(dict_1, dict_2):
-    """Merge two dictionaries.
-    Values that evaluate to true take priority over falsy values.
-    `dict_1` takes priority over `dict_2`.
-    """
-    return dict((str(key), dict_1.get(key) or dict_2.get(key))
-                for key in set(dict_2) | set(dict_1))
-
 def expand_in_dict(key, dict):
     """Expand os user name in dict key."""
     if key in dict:
@@ -102,7 +94,12 @@ def setup_arguments(cl_args):
         logging.debug(f'Config file loaded with these values. {ini_args}')
 
     # Merge configurations, giving command line arguments priority over config file arguments
-    args = merge(cl_args, ini_args)
+    args = {**cl_args, **ini_args}
+
+    # Set the output dir to current working dir, if it's not set yet
+    if not '--output' in args:
+        args['--output'] = os.getcwd()
+
 
     # Expand user commands in file arguments.
     for key in ['<file>', '<recipe>', '--output', '--xslt', '--config-file', '--cache-dir']:

@@ -116,12 +116,22 @@ class Transcription:
             if os.path.isfile(external):
                 return open(external).name
             else:
-                raise IOError(f"The supplied argument ({file_argument}) is not a file.")
+                raise IOError(f"The supplied argument ({external}) is not a file.")
 
+        if self.schema_info == None and external == None:
+            raise AttributeError(f'The file {self.input} does not have '
+                                 f'a correct '
+                                 f'`/teiHeader/encodingDesc/schemaRef` '
+                                 f'element (see LombardPress documentation), '
+                                 f'and no custom xslt is provided, so the '
+                                 f'correct xslt script cannot be determined.')
         if self.schema_info['type'] == 'critical':
             xslt_document_type = 'critical'
-        else:
+        elif self.schema_info['type'] == 'critical':
             xslt_document_type = 'diplomatic'
+        else:
+            raise AttributeError('The property `schema_info@type` must be '
+                                 'either `critical` or `diplomatic`.')
         xslt_ver = self.schema_info['version']
         top = os.path.join(config.module_dir, 'xslt')
         if xslt_ver in os.listdir(top):
@@ -181,14 +191,17 @@ class LocalTranscription(Transcription):
                 'type': schemaref_number.split('-')[1]
             }
         except IndexError as e:
-            logging.error('The document does not seem to contain a value in '
-                          'TEI/teiHeader/encodingDesc/schemaRef[@n]. See the LombardPress '
-                          'documentation for help. If the problem persists, please submit an issue '
-                          'report.')
-            raise
+            logging.warning('The document does not seem to contain a value in '
+                            'TEI/teiHeader/encodingDesc/schemaRef[@n]. See '
+                            'the LombardPress documentation for help. This '
+                            'means that an appropriate XSLT script cannot '
+                            'automatically be determined. This is a problem '
+                            'if no custom xslt script is provided.')
+            return None
         except Exception as e:
             logging.error('The process resulted in an error: {}.\n '
-                          'If the problem persists, please submit an issue report.'.format(e))
+                          'If the problem persists, please submit an issue '
+                          'report.'.format(e))
             raise
 
 

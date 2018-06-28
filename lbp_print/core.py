@@ -106,17 +106,16 @@ class Transcription:
         self.file = None
         self.tmp_dir = TemporaryDirectory()
 
-    def select_xlst_script(self, external=None):
+    def select_xlst_script(self, external=None) -> str:
         """Determine which xslt should be used.
 
         Return: File object
         """
-
         if external:
-            if os.path.isfile(external):
+            try:
                 return open(external).name
-            else:
-                raise IOError(f"The supplied argument ({external}) is not a file.")
+            except:
+                raise
 
         if self.schema_info == None and external == None:
             raise AttributeError(f'The file {self.input} does not have '
@@ -145,10 +144,14 @@ class Transcription:
                 f"A directory for version {xslt_ver} was not found in {top}")
 
     def create_hash(self):
-        with open(self.xslt, 'br') as f:
-            xslt_digest = blake2b(f.read(), digest_size=16).hexdigest()
-        with open(self.file, 'br') as f:
-            return blake2b(f.read(), digest_size=16, key=xslt_digest.encode('utf-8')).hexdigest()
+        try:
+            with open(self.xslt, 'br') as f:
+                xslt_digest = blake2b(f.read(), digest_size=16).hexdigest()
+            with open(self.file, 'br') as f:
+                return blake2b(f.read(), digest_size=16,
+                               key=xslt_digest.encode('utf-8')).hexdigest()
+        except:
+            raise
 
 
 class LocalTranscription(Transcription):
@@ -229,6 +232,7 @@ class RemoteTranscription(Transcription):
 
     def get_schema_info(self):
         """Return the validation schema version."""
+        logging.info("Getting information about the transcription schema.")
         if self.direct_transcription:
             return {
                 'version': self.transcription_object.file().validating_schema_version(),

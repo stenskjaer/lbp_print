@@ -18,6 +18,7 @@ import threading
 import urllib
 
 import lbppy
+import samewords
 
 from lbp_print import config
 
@@ -454,9 +455,18 @@ class Tex:
 
         if self.clean_whitespace:
             tex_file = self.whitespace_cleanup(tex_file)
+
         if self.annotate_samewords:
-            # Not implemented yet!
-            pass
+            with open(tex_file.name) as f:
+                buffer = f.read()
+
+            buffer = samewords.core.process_string(buffer)
+
+            with open(tex_file.name, 'w') as f:
+                f.write(buffer)
+
+            logging.debug('Samewords added.')
+
         return tex_file
 
     def compile(self, input_file):

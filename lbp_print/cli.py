@@ -39,6 +39,7 @@ Options:
   --config-file <file>     Location of a config file in json format.
                            [default: ~/.lbp_print.json]
   --no-cache               Skip the cache check.
+  --no-samewords           Do not add sameword annotations to the output.
   -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug
                            [default: info].
   -v, --version            Show version and exit.
@@ -153,11 +154,17 @@ def main():
         else:
             caching = True
 
+        if args['--no-samewords']:
+            samewords = False
+        else:
+            samewords = True
+
         output_file = Tex(item,
                           output_format=output_format,
                           output_dir=args['--output'],
                           xslt_parameters=args['--xslt-parameters'],
-                          caching=caching).process()
+                          caching=caching,
+                          annotate_samewords=samewords).process()
 
         logging.info('Results returned sucessfully.\n '
                      'The output file is located at %s' % os.path.abspath(output_file))

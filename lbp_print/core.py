@@ -299,8 +299,12 @@ class RemoteTranscription(Transcription):
 class Tex:
     """Object handling the creation and processing of the TeX representation of the item."""
 
-    def __init__(self, transcription: Transcription, output_format: str = None,
-                 output_dir: str = None, xslt_parameters: str = None, clean_whitespace: bool = True,
+    def __init__(self, transcription: Transcription,
+                 output_format: str = None,
+                 output_dir: str = None,
+                 xslt_parameters: str = None,
+                 clean_whitespace: bool = True,
+                 caching: bool = True,
                  annotate_samewords: bool = True) -> None:
         self.id = transcription.id
         self.xml = transcription.file
@@ -309,6 +313,7 @@ class Tex:
         self.tmp_dir = transcription.tmp_dir
         self.output_format = output_format
         self.output_dir = output_dir
+        self.caching = caching
         self.cache = Cache(config.cache_dir)
         self.xslt_parameters = xslt_parameters
         self.clean_whitespace = clean_whitespace
@@ -362,7 +367,7 @@ class Tex:
         Return: File object.
         """
 
-        if self.cache.contains(basename=self.digest + '.tex'):
+        if self.cache.contains(basename=self.digest + '.tex') and self.caching:
             logging.info(f"Using cached version of {self.id}.")
             return open(os.path.join(self.cache.dir, self.digest + '.tex'))
         else:

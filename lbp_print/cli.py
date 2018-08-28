@@ -38,6 +38,7 @@ Options:
                            Example: --xslt-parameters "key=value"
   --config-file <file>     Location of a config file in json format.
                            [default: ~/.lbp_print.json]
+  --no-cache               Skip the cache check.
   -V, --verbosity <level>  Set verbosity. Possibilities: silent, info, debug
                            [default: info].
   -v, --version            Show version and exit.
@@ -147,8 +148,16 @@ def main():
         if args['--xslt']:
             item.xslt = item.select_xlst_script(args['--xslt'])
 
-        output_file = Tex(item, output_format=output_format, output_dir=args['--output'],
-                          xslt_parameters=args['--xslt-parameters']).process()
+        if args['--no-cache']:
+            caching = False
+        else:
+            caching = True
+
+        output_file = Tex(item,
+                          output_format=output_format,
+                          output_dir=args['--output'],
+                          xslt_parameters=args['--xslt-parameters'],
+                          caching=caching).process()
 
         logging.info('Results returned sucessfully.\n '
                      'The output file is located at %s' % os.path.abspath(output_file))

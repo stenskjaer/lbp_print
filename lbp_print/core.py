@@ -421,7 +421,8 @@ class Tex:
             # Remove redundant space between closing brackets. and punctuation.
             (r'^ +', r''),  # Remove leading space at beginning of line.
             (r' %$', '%'),  # Remove trailing whitespace at paragraph end.
-            ('\( ', r'('),  # Remove trailing whitespace inside parenthesis.
+            ('\( ', r'('),  # Remove trailing whitespace at opening parenthesis.
+            (' \)', r')'),  # Remove trailing whitespace at closing parenthesis.
             ('([_\^])', r'\\\1'),  # Escape _ and ^ characters.
 
             # Replace anything wrapped in quotes ("...") with \enquote{...}. This is a bit

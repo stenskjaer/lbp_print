@@ -2,7 +2,7 @@ docopt==0.6.2
 isodate==0.5.4
 -e git+git@github.com:stenskjaer/lbp_print.git@f8fc3d19d7778faaa3c7a3463117dfb4a39b16f0#egg=lbp_print
 -e git+https://github.com/lombardpress/lbppy.git@f272e44429fcbd3f19384471c9cfb3903100fb30#egg=lbppy
-lxml==3.7.3
+lxml==4.3.0
 py==1.4.34
 pyparsing==2.2.0
 pytest==3.2.3

@@ -5,8 +5,9 @@
 ### Ignore src directory which is created after pip install -r requirements.txt
 *src/
 
-### PyCharm ###
+### PyCharm and VS code ###
 .idea/
+.vscode/
 
 ### Emacs ###
 # -*- mode: gitignore; -*-

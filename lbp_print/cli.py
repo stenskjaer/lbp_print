@@ -56,21 +56,27 @@ from lbp_print import config
 from lbp_print.core import LocalTranscription, RemoteTranscription, Tex
 from lbp_print.__about__ import __version__
 
+
 def load_config(filename):
     """Load and read in configuration from local config file.
 
     :return Dictionary of the configuration."""
     try:
-        with open(filename, mode='r') as f:
+        with open(filename, mode="r") as f:
             conf = json.loads(f.read())
         return conf
     except json.decoder.JSONDecodeError as e:
-        logging.error(f"The config file {f.name} is incorrectly formatted.\n"
-                      f"JSON decoding gave the following error: {e}")
+        logging.error(
+            f"The config file {f.name} is incorrectly formatted.\n"
+            f"JSON decoding gave the following error: {e}"
+        )
         raise
     except FileNotFoundError:
-        logging.warning(f'The config file {filename} was not found. Default settings will be used.')
+        logging.warning(
+            f"The config file {filename} was not found. Default settings will be used."
+        )
         return {}
+
 
 def expand_in_dict(key, dict):
     """Expand os user name in dict key."""
@@ -80,38 +86,46 @@ def expand_in_dict(key, dict):
         elif isinstance(dict[key], str):
             return os.path.abspath(os.path.expanduser(dict[key]))
 
+
 def setup_arguments(cl_args):
     """Register command line and config file configuration and update values in `Config` object
     in the global variable `config`.
     """
     # Expand user dir for config file.
-    cl_args['--config-file'] = os.path.expanduser(cl_args['--config-file'])
+    cl_args["--config-file"] = os.path.expanduser(cl_args["--config-file"])
 
     # Read config file or recipe
-    if cl_args['<recipe>']:
-        ini_args = load_config(cl_args['<recipe>'])
-        logging.debug(f'Recipe loaded with these values. {ini_args}')
+    if cl_args["<recipe>"]:
+        ini_args = load_config(cl_args["<recipe>"])
+        logging.debug(f"Recipe loaded with these values. {ini_args}")
     else:
-        ini_args = load_config(cl_args['--config-file'])
-        logging.debug(f'Config file loaded with these values. {ini_args}')
+        ini_args = load_config(cl_args["--config-file"])
+        logging.debug(f"Config file loaded with these values. {ini_args}")
 
     # Merge configurations, giving command line arguments priority over config file arguments
     args = {**cl_args, **ini_args}
 
     # Set the output dir to current working dir, if it's not set yet
-    if not '--output' in args:
-        args['--output'] = os.getcwd()
-
+    if not "--output" in args:
+        args["--output"] = os.getcwd()
 
     # Expand user commands in file arguments.
-    for key in ['<file>', '<recipe>', '--output', '--xslt', '--config-file', '--cache-dir']:
+    for key in [
+        "<file>",
+        "<recipe>",
+        "--output",
+        "--xslt",
+        "--config-file",
+        "--cache-dir",
+    ]:
         if key in args:
             args[key] = expand_in_dict(key, args)
 
-    if args['--cache-dir']:
-        config.cache_dir = args['--cache-dir']
+    if args["--cache-dir"]:
+        config.cache_dir = args["--cache-dir"]
 
     return args
+
 
 def main():
 
@@ -120,51 +134,55 @@ def main():
     args = setup_arguments(docopt(__doc__, version=__version__))
 
     # Setup logging according to configuration
-    logging.getLogger().setLevel(args['--verbosity'].upper())
-    logging.debug('Logging initialized at debug level.')
+    logging.getLogger().setLevel(args["--verbosity"].upper())
+    logging.debug("Logging initialized at debug level.")
 
     # Initialize the object
     transcriptions = []
-    if args['--scta']:
-        for num, exp in enumerate(args['<id>'], 1):
+    if args["--scta"]:
+        for num, exp in enumerate(args["<id>"], 1):
             logging.info(f'Initializing {exp}. [{num}/{len(args["<id>"])}]')
-            transcriptions.append(RemoteTranscription(exp, custom_xslt=args['--xslt']))
-    elif args['--local']:
-        for num, exp in enumerate(args['<file>'], 1):
+            transcriptions.append(RemoteTranscription(exp, custom_xslt=args["--xslt"]))
+    elif args["--local"]:
+        for num, exp in enumerate(args["<file>"], 1):
             logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
-            transcriptions.append(LocalTranscription(exp, custom_xslt=args['--xslt']))
+            transcriptions.append(LocalTranscription(exp, custom_xslt=args["--xslt"]))
 
     if args["pdf"]:
-        output_format = 'pdf'
-    elif args['tex']:
-        output_format = 'tex'
+        output_format = "pdf"
+    elif args["tex"]:
+        output_format = "tex"
     else:
         output_format = None
 
     for num, item in enumerate(transcriptions, 1):
         # Determine xslt script file (either provided or selected based on the xml transcription)
-        logging.info('-------')
-        logging.info(f'Processing {item.input}. [{num}/{len(transcriptions)}]')
+        logging.info("-------")
+        logging.info(f"Processing {item.input}. [{num}/{len(transcriptions)}]")
 
-        if args['--xslt']:
-            item.xslt = item.select_xlst_script(args['--xslt'])
+        if args["--xslt"]:
+            item.xslt = item.select_xlst_script(args["--xslt"])
 
-        if args['--no-cache']:
+        if args["--no-cache"]:
             caching = False
         else:
             caching = True
 
-        if args['--no-samewords']:
+        if args["--no-samewords"]:
             samewords = False
         else:
             samewords = True
 
-        output_file = Tex(item,
-                          output_format=output_format,
-                          output_dir=args['--output'],
-                          xslt_parameters=args['--xslt-parameters'],
-                          caching=caching,
-                          annotate_samewords=samewords).process()
+        output_file = Tex(
+            item,
+            output_format=output_format,
+            output_dir=args["--output"],
+            xslt_parameters=args["--xslt-parameters"],
+            caching=caching,
+            annotate_samewords=samewords,
+        ).process()
 
-        logging.info('Results returned sucessfully.\n '
-                     'The output file is located at %s' % os.path.abspath(output_file))
+        logging.info(
+            "Results returned sucessfully.\n "
+            "The output file is located at %s" % os.path.abspath(output_file)
+        )

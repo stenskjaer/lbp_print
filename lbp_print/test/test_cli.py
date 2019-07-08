@@ -42,14 +42,15 @@ class TestSetupArgs:
     }
 
     def test_setup_arguments(self):
+        home = os.path.expanduser("~")
         args = {
-            "--cache-dir": "/Users/michael/.lbp_cache",
-            "--config-file": "~/.lbp_print.json",
+            "--cache-dir": os.path.join(home, ".lbp_cache"),
+            "--config-file": os.path.join(home, "~/.lbp_print.json"),
             "<recipe>": None,
         }
         cli.setup_arguments(args)
-        assert config.cache_dir == "/Users/michael/.lbp_cache"
-        assert args["--config-file"] == "/Users/michael/.lbp_print.json"
+        assert config.cache_dir == os.path.join(home, ".lbp_cache")
+        assert args["--config-file"] == os.path.join(home, "~/.lbp_print.json")
 
     def test_arguments_expansion(self):
         args = {

@@ -38,14 +38,15 @@ class Cache:
         """If a cache dir is specified, check whether it exists."""
         if directory:
             candidate = os.path.expanduser(directory)
-            if os.path.isdir(candidate):
-                return os.path.abspath(candidate)
-            else:
-                raise OSError(
-                    "Specified cache directory (%s) does not exist." % candidate
+            if not os.path.isdir(candidate):
+                logging.warning(
+                    f"Specified cache directory ({candidate}) does not exist. "
+                    "It will be created now."
                 )
+                os.mkdir(candidate)
+            return os.path.abspath(candidate)
         else:
-            return None
+            raise Exception("Cache dir is not configured.")
 
     def open_registry(self):
         """If the cache dir is set, identify or create a registry in that dir."""
@@ -87,24 +88,14 @@ class Cache:
             else:
                 return False
 
-    def store(
-        self, file, digest: str, resource_id: str, suffix: str
-    ) -> Union[str, None]:
+    def store(self, file, digest: str, resource_id: str, suffix: str) -> str:
         """Store result in cache dir and remove earlier version of resource id.
 
         :return: String of cache file or None if no cache dir."""
-        if self.dir:
-            logging.debug("Storing {} in cache dir ({})".format(file.name, self.dir))
-            try:
-                self.update_registry(resource_id + suffix, digest + suffix)
-                return shutil.copyfile(
-                    file.name, os.path.join(self.dir, digest + suffix)
-                )
-            except:
-                raise
-        else:
-            logging.debug("Cache dir is not set.")
-            return None
+        filename = file.name
+        logging.debug(f"Storing {filename} in cache dir ({self.dir})")
+        self.update_registry(resource_id + suffix, digest + suffix)
+        return shutil.copyfile(filename, os.path.join(self.dir, digest + suffix))
 
 
 class Transcription:

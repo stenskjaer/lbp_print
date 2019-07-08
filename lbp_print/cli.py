@@ -32,6 +32,7 @@ Options:
   --output, -o <dir>       Put results in the specified directory. If nothing is
                            set, it will output to current working dir.
   --cache-dir <dir>        The directory where cached files should be stored.
+                           [default: ~/.lbp_cache]
   --xslt-parameters <str>  Command line parameters that will be
                            passed to the XSLT script. Unfortunately, this only
                            works with one parameter at the moment.

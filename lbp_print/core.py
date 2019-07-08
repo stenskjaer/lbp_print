@@ -558,11 +558,11 @@ class Tex:
 
             if process.returncode == 0:
                 # Process finished. We clean the tex dir and return the filename.
-                os.path.join(
+                output_file = os.path.join(
                     self.tmp_dir.name,
                     os.path.splitext(os.path.basename(input_file.name))[0],
+                    ".pdf",
                 )
-                +".pdf"
                 self.cache.store(
                     output_file, dst_digest=self.digest, src_id=self.id, suffix=".pdf"
                 )

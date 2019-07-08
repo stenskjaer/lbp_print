@@ -179,9 +179,12 @@ def main():
             xslt_parameters=args["--xslt-parameters"],
             enable_caching=caching,
             annotate_samewords=samewords,
-        ).process(output_format=output_format, output_dir=args["--output"])
+        ).process(output_format=output_format)
+
+        # Handle output dir
+        # output_dir=args["--output"]
 
         logging.info(
             "Results returned sucessfully.\n "
-            "The output file is located at %s" % os.path.abspath(output_file)
+            "The output file is located at %s" % os.path.abspath(result_file)
         )

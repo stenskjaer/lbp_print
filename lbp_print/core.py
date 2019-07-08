@@ -335,7 +335,7 @@ class Tex:
 
     def __init__(
         self,
-        transcription: Transcription,
+        transcription: Union[LocalTranscription, RemoteTranscription],
         xslt_parameters: str = None,
         clean_whitespace: bool = True,
         enable_caching: bool = True,

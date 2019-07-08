@@ -5,6 +5,7 @@
 
 from hashlib import blake2b
 from tempfile import TemporaryDirectory
+from typing import Union
 
 import json
 import logging
@@ -68,7 +69,6 @@ class Cache:
                 prev_ver = self.registry[suffixed_id]
                 self.registry[suffixed_id] = new
                 os.remove(os.path.join(self.dir, prev_ver))
-
             else:
                 self.registry[suffixed_id] = new
             with open(self.registry_file, "w") as fp:
@@ -87,16 +87,18 @@ class Cache:
             else:
                 return False
 
-    def store(self, src, dst_digest, src_id, suffix):
-        """Store result in cache dir when applicaple. Remove earlier version of id if present.
+    def store(
+        self, file, digest: str, resource_id: str, suffix: str
+    ) -> Union[str, None]:
+        """Store result in cache dir and remove earlier version of resource id.
 
         :return: String of cache file or None if no cache dir."""
         if self.dir:
-            logging.debug("Storing {} in cache dir ({})".format(src.name, self.dir))
+            logging.debug("Storing {} in cache dir ({})".format(file.name, self.dir))
             try:
-                self.update_registry(src_id + suffix, dst_digest + suffix)
+                self.update_registry(resource_id + suffix, digest + suffix)
                 return shutil.copyfile(
-                    src.name, os.path.join(self.dir, dst_digest + suffix)
+                    file.name, os.path.join(self.dir, digest + suffix)
                 )
             except:
                 raise
@@ -362,34 +364,12 @@ class Tex:
 
         :return: File object.
         """
-
-        def store_output(src, dst_basename):
-            """Store result in output dir when applicaple."""
-            if self.output_dir:
-                logging.debug("Output dir is set to %s" % self.output_dir)
-                try:
-                    return shutil.copyfile(
-                        src.name, os.path.join(self.output_dir, dst_basename)
-                    )
-                except:
-                    raise
-            else:
-                logging.debug("Output dir is not set.")
-
-            return src.name
-
         output_file = self.clean(self.xml_to_tex())
 
-        if self.output_format == "pdf":
+        if output_format == "pdf":
             output_file = self.compile(output_file)
-            output_suffix = ".pdf"
-        else:
-            output_suffix = ".tex"
 
-        # All done, now we remove the temporary directory before returning the output file.
-        result_dir = store_output(output_file, self.id + output_suffix)
-        self.tmp_dir.cleanup()
-        return result_dir
+        return os.path.join(output_file)
 
     def xml_to_tex(self):
         """Convert the list of encoded files to tex, using the auxiliary XSLT script.

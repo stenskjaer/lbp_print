@@ -173,14 +173,12 @@ def main():
         else:
             samewords = True
 
-        output_file = Tex(
+        result_file = Tex(
             item,
-            output_format=output_format,
-            output_dir=args["--output"],
             xslt_parameters=args["--xslt-parameters"],
-            caching=caching,
+            enable_caching=caching,
             annotate_samewords=samewords,
-        ).process()
+        ).process(output_format=output_format, output_dir=args["--output"])
 
         logging.info(
             "Results returned sucessfully.\n "

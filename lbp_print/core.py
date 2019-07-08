@@ -336,11 +336,9 @@ class Tex:
     def __init__(
         self,
         transcription: Transcription,
-        output_format: str = None,
-        output_dir: str = None,
         xslt_parameters: str = None,
         clean_whitespace: bool = True,
-        caching: bool = True,
+        enable_caching: bool = True,
         annotate_samewords: bool = True,
     ) -> None:
         self.id = transcription.id
@@ -348,15 +346,12 @@ class Tex:
         self.xslt = transcription.xslt
         self.digest = transcription.digest
         self.tmp_dir = transcription.tmp_dir
-        self.output_format = output_format
-        self.output_dir = output_dir
-        self.caching = caching
-        self.cache = Cache(config.cache_dir)
+        self.cache = Cache(config.cache_dir) if enable_caching else None
         self.xslt_parameters = xslt_parameters
         self.clean_whitespace = clean_whitespace
         self.annotate_samewords = annotate_samewords
 
-    def process(self):
+    def process(self, output_format):
         """Convert an XML file to TeX and compile it to PDF with XeLaTeX if required.
 
         Depending on the requested output format, this returns either a TeX file or a PDF file
@@ -424,14 +419,19 @@ class Tex:
                     + err.decode("utf-8")
                 )
             tex_buffer = out.decode("utf-8")
+            logging.info("The XML was successfully converted to TeX.")
 
-            # Output file name based on transcription object.
-            temp_location = os.path.join(self.tmp_dir.name, self.digest + ".tex")
-            with open(temp_location, mode="w+", encoding="utf-8") as f:
-                f.write(tex_buffer)
-            logging.info("The XML was successfully converted.")
+            tmp_filename = os.path.join(self.tmp_dir.name, self.digest + ".tex")
+            with open(tmp_filename, mode="w+", encoding="utf-8") as fh:
+                fh.write(tex_buffer)
 
-            self.cache.store(f, dst_digest=self.digest, src_id=self.id, suffix=".tex")
+            logging.debug("Storing file in cache.")
+            filename = self.cache.store(
+                fh, digest=self.digest, resource_id=self.id, suffix=".tex"
+            )
+
+            logging.debug("Cleaning up tmp dir.")
+            self.tmp_dir.cleanup()
 
             return filename
 

@@ -404,9 +404,9 @@ class Tex:
         Return: File object.
         """
 
-        if self.cache.contains(basename=self.digest + ".tex") and self.caching:
+        if self.cache and self.cache.contains(basename=self.digest + ".tex"):
             logging.info(f"Using cached version of {self.id}.")
-            return open(os.path.join(self.cache.dir, self.digest + ".tex"))
+            return os.path.join(self.cache.dir, self.digest + ".tex")
         else:
             logging.info(f"Start conversion of {self.id}.")
             logging.debug(f"Using XSLT: {self.xslt}.")
@@ -453,7 +453,7 @@ class Tex:
 
             self.cache.store(f, dst_digest=self.digest, src_id=self.id, suffix=".tex")
 
-            return f
+            return filename
 
     def whitespace_cleanup(self, tex_file):
         """Clean the content of the tex file for different whitespace problems.
@@ -488,13 +488,13 @@ class Tex:
             (r'"([^"]+?)"', r"\\enquote{\1}"),
         ]
 
-        with open(tex_file.name) as f:
+        with open(tex_file) as f:
             buffer = f.read()
 
         for pattern, replacement in patterns:
             buffer = re.sub(pattern, replacement, buffer, flags=re.MULTILINE)
 
-        with open(tex_file.name, "w") as f:
+        with open(tex_file, "w") as f:
             f.write(buffer)
 
         logging.debug("Whitespace removed.")
@@ -512,12 +512,12 @@ class Tex:
             tex_file = self.whitespace_cleanup(tex_file)
 
         if self.annotate_samewords:
-            with open(tex_file.name) as f:
+            with open(tex_file) as f:
                 buffer = f.read()
 
             buffer = samewords.core.process_string(buffer)
 
-            with open(tex_file.name, "w") as f:
+            with open(tex_file, "w") as f:
                 f.write(buffer)
 
             logging.debug("Samewords added.")
@@ -577,14 +577,12 @@ class Tex:
             q.put(None)
 
             if process.returncode == 0:
-                # Process finished. We clean the tex dir and return the file object from that dir.
-                output_file = open(
-                    os.path.join(
-                        self.tmp_dir.name,
-                        os.path.splitext(os.path.basename(input_file.name))[0],
-                    )
-                    + ".pdf"
+                # Process finished. We clean the tex dir and return the filename.
+                os.path.join(
+                    self.tmp_dir.name,
+                    os.path.splitext(os.path.basename(input_file.name))[0],
                 )
+                +".pdf"
                 self.cache.store(
                     output_file, dst_digest=self.digest, src_id=self.id, suffix=".pdf"
                 )

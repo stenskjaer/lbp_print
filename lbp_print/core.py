@@ -511,11 +511,6 @@ class Tex:
         :return: Pdf file object.
         """
 
-        def clean_tex_dir(directory):
-            for file in os.listdir(directory):
-                if os.path.splitext(file)[1] not in [".pdf", ".tex"]:
-                    os.remove(os.path.join(directory, file))
-
         def read_output(pipe, func):
             for line in iter(pipe.readline, b""):
                 func(line)

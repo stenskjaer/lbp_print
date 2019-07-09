@@ -426,30 +426,38 @@ class Tex:
 
             return filename
 
-    def whitespace_cleanup(self, tex_file):
+    def whitespace_cleanup(self, tex_file: str) -> str:
         """Clean the content of the tex file for different whitespace problems.
 
         :return: File object of the tex file after cleanup.
         """
 
-        logging.debug("Trying to remove whitespace...")
+        logging.debug("Removing whitespace...")
         patterns = [
-            (r" ?{ ?", r"{"),  # Remove redundant space around opening bracket.
-            (r" }", r"}"),  # Remove redundant space before closing bracket.
-            (r" ([.,?!:;])", r"\1"),  # Remove redundant space before punctuation.
-            (r" (\\edtext{})", r"\1"),  # Remove space before empty lemma app notes.
-            (
-                r"}(\\edtext{[^}]})",
-                r"} \1",
-            ),  # Add missing space between adjacent app. notes.
-            (r" +", " "),  # Remove excessive whitespace.
-            (r"} ([.,?!:;])", r"}\1"),
+            # Remove redundant space around opening bracket.
+            (r" ?{ ?", r"{"),
+            # Remove redundant space before closing bracket.
+            (r" }", r"}"),
+            # Remove redundant space before punctuation.
+            (r" ([.,?!:;]+)", r"\1"),
+            # Remove space before empty lemma app notes.
+            (r" (\\edtext{})", r"\1"),
+            # Add missing space between adjacent app. notes.
+            (r"}(\\edtext{[^}]+})", r"} \1"),
+            # Remove excessive whitespace.
+            (r" +", " "),
             # Remove redundant space between closing brackets. and punctuation.
-            (r"^ +", r""),  # Remove leading space at beginning of line.
-            (r" %$", "%"),  # Remove trailing whitespace at paragraph end.
-            ("\( ", r"("),  # Remove trailing whitespace at opening parenthesis.
-            (" \)", r")"),  # Remove trailing whitespace at closing parenthesis.
-            ("([_\^])", r"\\\1"),  # Escape _ and ^ characters.
+            (r"} ([.,?!:;]+)", r"}\1"),
+            # Remove leading space at beginning of line.
+            (r"^ +", r""),
+            # Remove trailing whitespace at paragraph end.
+            (r" %$", "%"),
+            # Remove trailing whitespace at opening parenthesis.
+            (r"\( ", r"("),
+            # Remove trailing whitespace at closing parenthesis.
+            (r" \)", r")"),
+            # Escape _ and ^ characters.
+            (r"([_\^])", r"\\\1"),
             # Replace anything wrapped in quotes ("...") with \enquote{...}. This is a bit
             # dangerous as it assumes that the editor always balances his quotes,
             # and we cannot be sure of that. The proper way to do this would be with a stack

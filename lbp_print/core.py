@@ -101,7 +101,7 @@ class Cache:
 class Transcription:
     def __init__(self, input):
         self.input = input
-        self.schema_info = None
+        self.schema_info = {}
         self.file = None
         self.tmp_dir = TemporaryDirectory()
 

@@ -88,11 +88,10 @@ class Cache:
             else:
                 return False
 
-    def store(self, file, digest: str, resource_id: str, suffix: str) -> str:
+    def store(self, filename, digest: str, resource_id: str, suffix: str) -> str:
         """Store result in cache dir and remove earlier version of resource id.
 
         :return: String of cache file or None if no cache dir."""
-        filename = file.name
         logging.debug(f"Storing {filename} in cache dir ({self.dir})")
         self.update_registry(resource_id + suffix, digest + suffix)
         return shutil.copyfile(filename, os.path.join(self.dir, digest + suffix))
@@ -418,7 +417,7 @@ class Tex:
 
             logging.debug("Storing file in cache.")
             filename = self.cache.store(
-                fh, digest=self.digest, resource_id=self.id, suffix=".tex"
+                fh.name, digest=self.digest, resource_id=self.id, suffix=".tex"
             )
 
             logging.debug("Cleaning up tmp dir.")
@@ -522,14 +521,14 @@ class Tex:
 
         if self.cache.contains(self.digest + ".pdf"):
             logging.debug("Using cached pdf.")
-            return open(os.path.join(self.cache.dir, self.digest + ".pdf"))
+            return os.path.join(self.cache.dir, self.digest + ".pdf")
 
         else:
             logging.info(f"Start compilation of {self.id}")
             process = subprocess.Popen(
                 f"latexmk --xelatex --output-directory={self.tmp_dir.name} "
                 f"--halt-on-error "
-                f"{re.escape(input_file.name)}",
+                f"{re.escape(input_file)}",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=True,
@@ -554,13 +553,12 @@ class Tex:
                 # Process finished. We clean the tex dir and return the filename.
                 output_file = os.path.join(
                     self.tmp_dir.name,
-                    os.path.splitext(os.path.basename(input_file.name))[0],
-                    ".pdf",
+                    os.path.splitext(os.path.basename(input_file))[0] + ".pdf",
                 )
-                self.cache.store(
-                    output_file, dst_digest=self.digest, src_id=self.id, suffix=".pdf"
+                cache_name = self.cache.store(
+                    output_file, digest=self.digest, resource_id=self.id, suffix=".pdf"
                 )
-                return output_file
+                return cache_name
             else:
                 logging.error(
                     "The compilation failed. See tex output above for more info."

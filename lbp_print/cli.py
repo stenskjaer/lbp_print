@@ -53,7 +53,7 @@ import json
 from docopt import docopt
 
 from lbp_print import config
-from lbp_print.core import LocalTranscription, RemoteTranscription, Tex
+from lbp_print.core import LocalResource, RemoteResource, Tex
 from lbp_print.__about__ import __version__
 
 
@@ -142,11 +142,11 @@ def main():
     if args["--scta"]:
         for num, exp in enumerate(args["<id>"], 1):
             logging.info(f'Initializing {exp}. [{num}/{len(args["<id>"])}]')
-            transcriptions.append(RemoteTranscription(exp, custom_xslt=args["--xslt"]))
+            transcriptions.append(RemoteResource(exp, custom_xslt=args["--xslt"]))
     elif args["--local"]:
         for num, exp in enumerate(args["<file>"], 1):
             logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
-            transcriptions.append(LocalTranscription(exp, custom_xslt=args["--xslt"]))
+            transcriptions.append(LocalResource(exp, custom_xslt=args["--xslt"]))
 
     if args["pdf"]:
         output_format = "pdf"

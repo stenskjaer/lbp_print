@@ -97,7 +97,7 @@ class Cache:
         return shutil.copyfile(filename, os.path.join(self.dir, digest + suffix))
 
 
-class Transcription:
+class Resource:
     def __init__(self, input):
         self.input = input
         self.schema_info = {}
@@ -162,11 +162,11 @@ class Transcription:
             raise
 
 
-class LocalTranscription(Transcription):
+class LocalResource(Resource):
     """Object for handling local files."""
 
     def __init__(self, input, custom_xslt=None):
-        Transcription.__init__(self, input)
+        Resource.__init__(self, input)
         self.file = self.copy_to_file()
         self.id = os.path.splitext(os.path.basename(self.input))[0]
         self.schema_info = self.get_schema_info()
@@ -222,7 +222,7 @@ class LocalTranscription(Transcription):
             raise
 
 
-class RemoteTranscription(Transcription):
+class RemoteResource(Resource):
     """Object for handling remote transcriptions.
 
     Keyword arguments:
@@ -230,7 +230,7 @@ class RemoteTranscription(Transcription):
     """
 
     def __init__(self, input, custom_xslt=None):
-        Transcription.__init__(self, input)
+        Resource.__init__(self, input)
         self.input = input
         self.download_dir = False
         self.resource = self.find_remote_resource(input)
@@ -328,7 +328,7 @@ class Tex:
 
     def __init__(
         self,
-        transcription: Union[LocalTranscription, RemoteTranscription],
+        transcription: Union[LocalResource, RemoteResource],
         xslt_parameters: str = None,
         clean_whitespace: bool = True,
         enable_caching: bool = True,

@@ -1,9 +1,9 @@
-from lbp_print.core import RemoteTranscription
+from lbp_print.core import RemoteResource
 
 
 class TestRemoteTranscription:
 
-    trans = RemoteTranscription("da-49-l1q1")
+    trans = RemoteResource("da-49-l1q1")
 
     def test_remote_transcription_object(self):
         assert (

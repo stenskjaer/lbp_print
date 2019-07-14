@@ -1,14 +1,12 @@
 import os
 import tempfile
 
-from lbp_print.core import Tex, LocalTranscription, RemoteTranscription
+from lbp_print.core import Tex, LocalResource, RemoteResource
 
 
 class TestWhiteSpaceCleanup:
 
-    local = LocalTranscription(
-        os.path.join("lbp_print", "test", "assets", "da-49-l1q1.xml")
-    )
+    local = LocalResource(os.path.join("lbp_print", "test", "assets", "da-49-l1q1.xml"))
 
     def clean(self, content: str) -> str:
         with tempfile.NamedTemporaryFile(mode="w+") as fh:
@@ -35,10 +33,8 @@ class TestWhiteSpaceCleanup:
 
 class TestTexProcessing:
 
-    local = LocalTranscription(
-        os.path.join("lbp_print", "test", "assets", "da-49-l1q1.xml")
-    )
-    remote = RemoteTranscription("da-49-l1q1")
+    local = LocalResource(os.path.join("lbp_print", "test", "assets", "da-49-l1q1.xml"))
+    remote = RemoteResource("da-49-l1q1")
 
     def test_create_tex_file_from_local(self):
         """Make sure that the return value of the tex compilation is a tex file."""

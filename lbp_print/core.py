@@ -281,6 +281,9 @@ class RemoteTranscription(Transcription):
                 "Ensure that you have entered the correct id. "
             )
             raise
+        except urllib.error.URLError as exc:
+            logging.error(f"Unable to connect to the resource. Error message: {exc}")
+            raise
 
     def define_transcription_object(self):
         """

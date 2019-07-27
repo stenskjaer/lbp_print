@@ -104,7 +104,7 @@ class Resource:
         self.file = None
         self.tmp_dir = TemporaryDirectory()
 
-    def select_xlst_script(self, external=None) -> str:
+    def select_xlst_script(self, schema_info={}, external=None) -> str:
         """Determine which xslt should be used.
 
         Return: File object
@@ -115,7 +115,7 @@ class Resource:
             except:
                 raise
 
-        if self.schema_info == None and external == None:
+        if schema_info == None and external == None:
             raise AttributeError(
                 f"The file {self.input} does not have "
                 f"a correct "
@@ -124,16 +124,17 @@ class Resource:
                 f"and no custom xslt is provided, so the "
                 f"correct xslt script cannot be determined."
             )
-        if self.schema_info["type"] == "critical":
-            xslt_document_type = "critical"
-        elif self.schema_info["type"] == "critical":
-            xslt_document_type = "diplomatic"
-        else:
+        try:
+            if schema_info["type"] == "critical":
+                xslt_document_type = "critical"
+            elif schema_info["type"] == "critical":
+                xslt_document_type = "diplomatic"
+        except KeyError:
             raise AttributeError(
                 "The property `schema_info@type` must be "
                 "either `critical` or `diplomatic`."
             )
-        xslt_ver = self.schema_info["version"]
+        xslt_ver = schema_info.get("version")
         top = os.path.join(config.module_dir, "xslt")
         if xslt_ver in os.listdir(top):
             if xslt_document_type + ".xslt" in os.listdir(os.path.join(top, xslt_ver)):

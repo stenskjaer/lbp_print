@@ -199,8 +199,8 @@ class Resource:
 class UrlResource(Resource):
     """Object for handling resources with a URL address."""
 
-    def __init__(self, url):
-        Resource.__init__(self, input)
+    def __init__(self, url, custom_xslt=None):
+        super().__init__(url)
         self.url = url
         self.file = self._download_to_file()
         self.schema_info = self.get_schema_info()
@@ -225,7 +225,7 @@ class LocalResource(Resource):
     """Object for handling local files."""
 
     def __init__(self, input, custom_xslt=None):
-        Resource.__init__(self, input)
+        super().__init__(input)
         self.file = self.copy_to_file()
         self.id = os.path.splitext(os.path.basename(self.input))[0]
         self.schema_info = self.get_schema_info()
@@ -255,7 +255,7 @@ class RemoteResource(Resource):
     """
 
     def __init__(self, input, custom_xslt=None):
-        Resource.__init__(self, input)
+        super().__init__(input)
         self.input = input
         self.download_dir = False
         self.resource = self.find_remote_resource(input)

@@ -13,10 +13,14 @@ class TestUrlResource:
 
     def test_successfull_download_to_file(self):
         assert self.res.file is not None
-        assert os.path.exists(self.res.file)
+        assert os.path.isfile(self.res.file)
 
     def test_identified_schema_info(self):
-        assert self.schema_info.version is not None
+        assert self.res.schema_info.get("version") == "1.0.0"
+        assert self.res.schema_info.get("type") == "critical"
+
+    def test_identified_xslt_exists(self):
+        assert os.path.isfile(self.res.xslt)
 
 
 class TestRemoteResource:

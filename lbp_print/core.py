@@ -204,8 +204,8 @@ class UrlResource(Resource):
         self.url = url
         self.file = self._download_to_file()
         self.schema_info = self.get_schema_info()
-        # self.xslt = self.select_xlst_script(external=custom_xslt)
-        # self.digest = self.create_hash()
+        self.xslt = self.select_xlst_script(external=custom_xslt)
+        self.digest = self.create_hash()
 
     def _download_to_file(self) -> str:
         """Download the remote object and store in a temporary file.

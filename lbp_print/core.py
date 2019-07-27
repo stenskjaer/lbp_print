@@ -228,23 +228,23 @@ class UrlResource(Resource):
 class LocalResource(Resource):
     """Object for handling local files."""
 
-    def __init__(self, input, custom_xslt=None):
-        super().__init__(input)
-        self.file = self.copy_to_file()
-        self.id = os.path.splitext(os.path.basename(self.input))[0]
+    def __init__(self, filename, custom_xslt=None):
+        super().__init__(filename)
+        self.file = self.copy_to_file(filename)
+        self.id = os.path.splitext(os.path.basename(filename))[0]
         self.xslt = self.select_xlst_script(
             schema_info=self.get_schema_info(), external=custom_xslt
         )
         self.digest = self.create_hash()
-        logging.debug(f"Local resource initialized. {self.input}")
+        logging.debug(f"Local resource initialized. {filename}")
         logging.debug("Object dict: {}".format(self.__dict__))
 
-    def copy_to_file(self):
+    def copy_to_file(self, filename):
         """Copy the input file to a temporary file object that we can delete later.
 
         :return: File object.
         """
-        file_argument = os.path.expanduser(self.input)
+        file_argument = os.path.expanduser(filename)
         if os.path.isfile(file_argument):
             shutil.copy(file_argument, self.tmp_dir.name)
             return os.path.join(self.tmp_dir.name, os.path.basename(file_argument))

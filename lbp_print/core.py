@@ -150,18 +150,6 @@ class Resource:
                 f"A directory for version {xslt_ver} was not found in {top}"
             )
 
-    def create_hash(self):
-        try:
-            with open(self.xslt, "br") as f:
-                xslt_digest = blake2b(f.read(), digest_size=16).hexdigest()
-            with open(self.file, "br") as f:
-                return blake2b(
-                    f.read(), digest_size=16, key=xslt_digest.encode("utf-8")
-                ).hexdigest()
-        except:
-            raise
-
-
 class LocalResource(Resource):
     """Object for handling local files."""
 
@@ -219,6 +207,17 @@ class LocalResource(Resource):
                 "If the problem persists, please submit an issue "
                 "report.".format(e)
             )
+            raise
+
+    def create_hash(self):
+        try:
+            with open(self.xslt, "br") as f:
+                xslt_digest = blake2b(f.read(), digest_size=16).hexdigest()
+            with open(self.file, "br") as f:
+                return blake2b(
+                    f.read(), digest_size=16, key=xslt_digest.encode("utf-8")
+                ).hexdigest()
+        except:
             raise
 
 

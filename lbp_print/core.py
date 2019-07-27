@@ -259,41 +259,40 @@ class RemoteResource(Resource):
     input -- SCTA resource id of the text to be processed.
     """
 
-    def __init__(self, input, custom_xslt=None):
-        super().__init__(input)
-        self.input = input
-        self.download_dir = False
-        self.resource = self.find_remote_resource(input)
-        self.direct_transcription = (
-            False
-        )  # Does the input refer directly to a transcription.
-        self.transcription_object = self.define_transcription_object()
+    def __init__(self, input_id, custom_xslt=None):
+        super().__init__(input_id)
+        transcription = self._define_transcription_object(
+            self._find_remote_resource(input_id)
+        )
         self.id = self.input.split("/")[-1]
-        self.file = self.download_to_file()
+        self.file = self._download_to_file(transcription)
         self.xslt = self.select_xlst_script(
-            schema_info=self.get_schema_info(), external=custom_xslt
+            schema_info=self._get_schema_info(transcription), external=custom_xslt
         )
         self.digest = self.create_hash()
         logging.debug("Remote resource initialized.")
         logging.debug("Object dict: {}".format(self.__dict__))
 
-    def get_schema_info(self):
+    def _is_direct_transcription(self, transcription_obj):
+        return isinstance(transcription_obj, lbppy.Transcription)
+
+    def _get_schema_info(self, transcription_object):
         """Return the validation schema version."""
         logging.info("Getting information about the transcription schema.")
-        if self.direct_transcription:
+        if self._is_direct_transcription(transcription_object):
             return {
-                "version": self.transcription_object.file().validating_schema_version(),
-                "type": self.transcription_object.transcription_type(),
+                "version": transcription_object.file().validating_schema_version(),
+                "type": transcription_object.transcription_type(),
             }
         else:
             return {
-                "version": self.transcription_object.resource()
+                "version": transcription_object.resource()
                 .file()
                 .validating_schema_version(),
-                "type": self.transcription_object.resource().transcription_type(),
+                "type": transcription_object.resource().transcription_type(),
             }
 
-    def find_remote_resource(self, resource_input):
+    def _find_remote_resource(self, resource_input):
 
         url_match = re.match(r"(http://)?(scta.info/resource)?", resource_input)
         url_string = ""
@@ -316,24 +315,21 @@ class RemoteResource(Resource):
             logging.error(f"Unable to connect to the resource. Error message: {exc}")
             raise
 
-    def define_transcription_object(self):
+    def _define_transcription_object(self, resource):
         """
         Return a canonical transcription of either Manifestation (critical) or Expression (
         diplomatic) objects.
         """
-        if isinstance(self.resource, lbppy.Expression):
+        if isinstance(resource, lbppy.Expression):
             return (
-                self.resource.canonical_manifestation()
-                .resource()
-                .canonical_transcription()
+                resource.canonical_manifestation().resource().canonical_transcription()
             )
-        elif isinstance(self.resource, lbppy.Manifestation):
-            return self.resource.canonical_transcription()
-        elif isinstance(self.resource, lbppy.Transcription):
-            self.direct_transcription = True
-            return self.resource
+        elif isinstance(resource, lbppy.Manifestation):
+            return resource.canonical_transcription()
+        elif isinstance(resource, lbppy.Transcription):
+            return resource
 
-    def download_to_file(self):
+    def _download_to_file(self, transcription_obj):
         """Download the remote object and store in a temporary file.
 
         :return: File object
@@ -341,10 +337,10 @@ class RemoteResource(Resource):
         tmp_file = open(os.path.join(self.tmp_dir.name, "tmp"), mode="w")
 
         logging.info("Downloading remote resource...")
-        if self.direct_transcription:
-            url_object = self.transcription_object.file().file().geturl()
+        if self._is_direct_transcription(transcription_obj):
+            url_object = transcription_obj.file().file().geturl()
         else:
-            url_object = self.transcription_object.resource().file().file().geturl()
+            url_object = transcription_obj.resource().file().file().geturl()
 
         with urllib.request.urlopen(url_object) as response:
             transcription_content = response.read().decode("utf-8")

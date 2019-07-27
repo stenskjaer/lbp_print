@@ -19,13 +19,25 @@ class TestUrlResource:
     def test_identified_xslt_exists(self):
         assert os.path.isfile(self.res.xslt)
 
+    def test_resource_id_exists(self):
+        assert type(self.res.id) == str
+
 
 class TestRemoteResource:
 
-    trans = RemoteResource("da-49-l1q1")
-
-    def test_remote_transcription_object(self):
-        assert self.trans.id == "da-49-l1q1"
+    res = RemoteResource("da-49-l1q1")
 
     def test_remote_file_download(self):
-        assert self.trans.file is not None
+        assert self.res.file is not None
+        assert os.path.isfile(self.res.file)
+
+    def test_identified_schema_info(self):
+        assert self.res.get_schema_info().get("version") == "1.0.0"
+        assert self.res.get_schema_info().get("type") == "critical"
+
+    def test_identified_xslt_exists(self):
+        assert os.path.isfile(self.res.xslt)
+
+    def test_resource_id_exists(self):
+        assert type(self.res.id) == str
+

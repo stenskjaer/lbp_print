@@ -231,11 +231,11 @@ class LocalResource(Resource):
     def __init__(self, filename, custom_xslt=None):
         super().__init__(filename)
         self.file = self.copy_to_file(filename)
-        self.id = os.path.splitext(os.path.basename(filename))[0]
         self.xslt = self.select_xlst_script(
             schema_info=self.get_schema_info(), external=custom_xslt
         )
         self.digest = self.create_hash()
+        self.id = self.digest
         logging.debug(f"Local resource initialized. {filename}")
         logging.debug("Object dict: {}".format(self.__dict__))
 
@@ -264,12 +264,12 @@ class RemoteResource(Resource):
         transcription = self._define_transcription_object(
             self._find_remote_resource(input_id)
         )
-        self.id = self.input.split("/")[-1]
         self.file = self._download_to_file(transcription)
         self.xslt = self.select_xlst_script(
             schema_info=self._get_schema_info(transcription), external=custom_xslt
         )
         self.digest = self.create_hash()
+        self.id = self.digest
         logging.debug("Remote resource initialized.")
         logging.debug("Object dict: {}".format(self.__dict__))
 

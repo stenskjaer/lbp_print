@@ -206,6 +206,7 @@ class UrlResource(Resource):
         self.schema_info = self.get_schema_info()
         self.xslt = self.select_xlst_script(external=custom_xslt)
         self.digest = self.create_hash()
+        self.id = self.digest
 
     def _download_to_file(self) -> str:
         """Download the remote object and store in a temporary file.
@@ -353,7 +354,7 @@ class Tex:
 
     def __init__(
         self,
-        transcription: Union[LocalResource, RemoteResource],
+        transcription: Union[LocalResource, RemoteResource, UrlResource],
         xslt_parameters: str = None,
         clean_whitespace: bool = True,
         enable_caching: bool = True,

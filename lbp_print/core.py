@@ -202,20 +202,20 @@ class UrlResource(Resource):
 
     def __init__(self, url, custom_xslt=None):
         super().__init__(url)
-        self.url = url
-        self.file = self._download_to_file()
-        self.schema_info = self.get_schema_info()
-        self.xslt = self.select_xlst_script(external=custom_xslt)
+        self.file = self._download_to_file(url)
+        self.xslt = self.select_xlst_script(
+            schema_info=self.get_schema_info(), external=custom_xslt
+        )
         self.digest = self.create_hash()
         self.id = self.digest
 
-    def _download_to_file(self) -> str:
+    def _download_to_file(self, url) -> str:
         """Download the remote object and store in a temporary file.
         """
         tmp_file = open(os.path.join(self.tmp_dir.name, "download"), mode="w")
 
         logging.info("Downloading remote resource...")
-        with urllib.request.urlopen(self.url) as response:
+        with urllib.request.urlopen(url) as response:
             transcription_content = response.read().decode("utf-8")
             with open(tmp_file.name, mode="w", encoding="utf-8") as f:
                 f.write(transcription_content)
@@ -230,8 +230,9 @@ class LocalResource(Resource):
         super().__init__(input)
         self.file = self.copy_to_file()
         self.id = os.path.splitext(os.path.basename(self.input))[0]
-        self.schema_info = self.get_schema_info()
-        self.xslt = self.select_xlst_script(external=custom_xslt)
+        self.xslt = self.select_xlst_script(
+            schema_info=self.get_schema_info(), external=custom_xslt
+        )
         self.digest = self.create_hash()
         logging.debug(f"Local resource initialized. {self.input}")
         logging.debug("Object dict: {}".format(self.__dict__))
@@ -267,8 +268,9 @@ class RemoteResource(Resource):
         self.transcription_object = self.define_transcription_object()
         self.id = self.input.split("/")[-1]
         self.file = self.download_to_file()
-        self.schema_info = self.get_schema_info()
-        self.xslt = self.select_xlst_script(external=custom_xslt)
+        self.xslt = self.select_xlst_script(
+            schema_info=self.get_schema_info(), external=custom_xslt
+        )
         self.digest = self.create_hash()
         logging.debug("Remote resource initialized.")
         logging.debug("Object dict: {}".format(self.__dict__))

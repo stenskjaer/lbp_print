@@ -12,7 +12,11 @@ class TestUrlResource:
         assert self.res.url == self.url
 
     def test_successfull_download_to_file(self):
-        assert os.path.exists(self.res.filename)
+        assert self.res.file is not None
+        assert os.path.exists(self.res.file)
+
+    def test_identified_schema_info(self):
+        assert self.schema_info.version is not None
 
 
 class TestRemoteResource:

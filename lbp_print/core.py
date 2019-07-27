@@ -162,28 +162,6 @@ class Resource:
             raise
 
 
-class UrlResource(Resource):
-    """Object for handling resources with a URL address."""
-
-    def __init__(self, url):
-        Resource.__init__(self, input)
-        self.url = url
-        self.filename = self._download_to_file()
-
-    def _download_to_file(self) -> str:
-        """Download the remote object and store in a temporary file.
-        """
-        tmp_file = open(os.path.join(self.tmp_dir.name, "download"), mode="w")
-
-        logging.info("Downloading remote resource...")
-        with urllib.request.urlopen(self.url) as response:
-            transcription_content = response.read().decode("utf-8")
-            with open(tmp_file.name, mode="w", encoding="utf-8") as f:
-                f.write(transcription_content)
-        logging.info("Download of remote resource finished.")
-        return f.name
-
-
 class LocalResource(Resource):
     """Object for handling local files."""
 
@@ -242,6 +220,31 @@ class LocalResource(Resource):
                 "report.".format(e)
             )
             raise
+
+
+class UrlResource(LocalResource):
+    """Object for handling resources with a URL address."""
+
+    def __init__(self, url):
+        Resource.__init__(self, input)
+        self.url = url
+        self.file = self._download_to_file()
+        self.schema_info = self.get_schema_info()
+        # self.xslt = self.select_xlst_script(external=custom_xslt)
+        # self.digest = self.create_hash()
+
+    def _download_to_file(self) -> str:
+        """Download the remote object and store in a temporary file.
+        """
+        tmp_file = open(os.path.join(self.tmp_dir.name, "download"), mode="w")
+
+        logging.info("Downloading remote resource...")
+        with urllib.request.urlopen(self.url) as response:
+            transcription_content = response.read().decode("utf-8")
+            with open(tmp_file.name, mode="w", encoding="utf-8") as f:
+                f.write(transcription_content)
+        logging.info("Download of remote resource finished.")
+        return f.name
 
 
 class RemoteResource(Resource):

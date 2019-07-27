@@ -150,31 +150,6 @@ class Resource:
                 f"A directory for version {xslt_ver} was not found in {top}"
             )
 
-class LocalResource(Resource):
-    """Object for handling local files."""
-
-    def __init__(self, input, custom_xslt=None):
-        Resource.__init__(self, input)
-        self.file = self.copy_to_file()
-        self.id = os.path.splitext(os.path.basename(self.input))[0]
-        self.schema_info = self.get_schema_info()
-        self.xslt = self.select_xlst_script(external=custom_xslt)
-        self.digest = self.create_hash()
-        logging.debug(f"Local resource initialized. {self.input}")
-        logging.debug("Object dict: {}".format(self.__dict__))
-
-    def copy_to_file(self):
-        """Copy the input file to a temporary file object that we can delete later.
-
-        :return: File object.
-        """
-        file_argument = os.path.expanduser(self.input)
-        if os.path.isfile(file_argument):
-            shutil.copy(file_argument, self.tmp_dir.name)
-            return os.path.join(self.tmp_dir.name, os.path.basename(file_argument))
-        else:
-            raise IOError(f"The supplied argument ({file_argument}) is not a file.")
-
     def get_schema_info(self):
         """Return the validation schema version."""
         # TODO: We need validation of the xml before parsing it. This is necesssary for proper user
@@ -221,7 +196,7 @@ class LocalResource(Resource):
             raise
 
 
-class UrlResource(LocalResource):
+class UrlResource(Resource):
     """Object for handling resources with a URL address."""
 
     def __init__(self, url):
@@ -244,6 +219,32 @@ class UrlResource(LocalResource):
                 f.write(transcription_content)
         logging.info("Download of remote resource finished.")
         return f.name
+
+
+class LocalResource(Resource):
+    """Object for handling local files."""
+
+    def __init__(self, input, custom_xslt=None):
+        Resource.__init__(self, input)
+        self.file = self.copy_to_file()
+        self.id = os.path.splitext(os.path.basename(self.input))[0]
+        self.schema_info = self.get_schema_info()
+        self.xslt = self.select_xlst_script(external=custom_xslt)
+        self.digest = self.create_hash()
+        logging.debug(f"Local resource initialized. {self.input}")
+        logging.debug("Object dict: {}".format(self.__dict__))
+
+    def copy_to_file(self):
+        """Copy the input file to a temporary file object that we can delete later.
+
+        :return: File object.
+        """
+        file_argument = os.path.expanduser(self.input)
+        if os.path.isfile(file_argument):
+            shutil.copy(file_argument, self.tmp_dir.name)
+            return os.path.join(self.tmp_dir.name, os.path.basename(file_argument))
+        else:
+            raise IOError(f"The supplied argument ({file_argument}) is not a file.")
 
 
 class RemoteResource(Resource):

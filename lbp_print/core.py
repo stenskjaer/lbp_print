@@ -208,6 +208,8 @@ class UrlResource(Resource):
         )
         self.digest = self.create_hash()
         self.id = self.digest
+        logging.debug(f"Url resource initialized with url: {url}")
+        logging.debug("Object dict: {}".format(self.__dict__))
 
     def _download_to_file(self, url) -> str:
         """Download the remote object and store in a temporary file.

@@ -32,7 +32,6 @@ class Cache:
         self.registry_file = (
             os.path.join(self.dir, "registry.json") if self.dir else None
         )
-        self.registry = self.open_registry()
 
     def verify_dir(self, directory):
         """If a cache dir is specified, check whether it exists."""
@@ -47,33 +46,6 @@ class Cache:
             return os.path.abspath(candidate)
         else:
             raise Exception("Cache dir is not configured.")
-
-    def open_registry(self):
-        """If the cache dir is set, identify or create a registry in that dir."""
-        if self.dir:
-            if not os.path.isfile(self.registry_file):
-                with open(self.registry_file, "w+") as fp:
-                    # Create the file, and to avoid any formatting errors, it gets a bit of content.
-                    json.dump({"key": "val"}, fp)
-            with open(self.registry_file) as fp:
-                return json.load(fp)
-
-        else:
-            return None
-
-    def update_registry(self, suffixed_id, new):
-        """Update the registry, remove the old version and save the updated registry file.
-        """
-        if self.dir:
-            logging.debug("Updating cache registry.")
-            if suffixed_id in self.registry:
-                prev_ver = self.registry[suffixed_id]
-                self.registry[suffixed_id] = new
-                os.remove(os.path.join(self.dir, prev_ver))
-            else:
-                self.registry[suffixed_id] = new
-            with open(self.registry_file, "w") as fp:
-                json.dump(self.registry, fp)
 
     def contains(self, basename):
         """Check whether the hash of the current transcription object is present in the cache
@@ -93,7 +65,6 @@ class Cache:
 
         :return: String of cache file or None if no cache dir."""
         logging.debug(f"Storing {filename} in cache dir ({self.dir})")
-        self.update_registry(resource_id + suffix, digest + suffix)
         return shutil.copyfile(filename, os.path.join(self.dir, digest + suffix))
 
 

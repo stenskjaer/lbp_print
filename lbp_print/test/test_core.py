@@ -47,9 +47,6 @@ class TestRemoteResource:
 
 
 class TestCache:
-    path = os.path.join(config.module_dir, "test", "assets", "da-49-l1q1.xml")
-    res = LocalResource(path)
-
     @pytest.fixture
     def cache_settings(self):
         config.cache_dir = os.path.join(os.path.curdir, "cache")
@@ -57,5 +54,18 @@ class TestCache:
         shutil.rmtree(config.cache_dir)
 
     def test_store_in_cache_after_processing(self, cache_settings):
-        Tex(self.res).process(output_format="tex")
-        assert os.path.isfile(os.path.join(config.cache_dir, self.res.digest + ".tex"))
+        path = os.path.join(config.module_dir, "test", "assets", "da-49-l1q1.xml")
+        res = LocalResource(path)
+        Tex(res).process(output_format="tex")
+        assert os.path.isfile(os.path.join(config.cache_dir, res.digest + ".tex"))
+
+    def test_store_different_versions(self, cache_settings):
+        path = os.path.join(config.module_dir, "test", "assets", "da-49-l1q1.xml")
+        res = LocalResource(path)
+        modified_path = os.path.join(
+            config.module_dir, "test", "assets", "da-49-l1q1-modified.xml"
+        )
+        modified_res = LocalResource(modified_path)
+        Tex(res).process(output_format="tex")
+        Tex(modified_res).process(output_format="tex")
+        assert len(os.listdir(config.cache_dir)) == 2

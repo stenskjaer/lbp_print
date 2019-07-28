@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://raw.githubusercontent.com/lombardpress/lombardpress-schema/master/src/out/critical.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://raw.githubusercontent.com/lombardpress/lombardpress-schema/master/src/out/critical.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Quaestiones in libros De anima</title>
+        <author>Johannes Dinsdale</author>
+        <respStmt>
+          <persName>Michael Stenskjær Christensen</persName>
+          <resp>Encoding and transcription</resp>
+        </respStmt>
+      </titleStmt>
+      <editionStmt>
+        <edition n="0.1.1-dev">
+          <date when="2017-05-26"/>
+        </edition>
+      </editionStmt>
+      <publicationStmt>
+        <publisher>Michael Stenskjær Christensen</publisher>
+        <authority>
+          <ref target="http://representationandreality.gu.se">
+            Representation and Reality: Historical and Contemporary Perspectives on the Aristotelian Tradition
+          </ref>
+        </authority>
+        <availability status="free">
+          <p>Published under a <ref
+          target="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative
+          Commons Attribution-NonCommercial-NoDerivs 3.0 License</ref></p>
+        </availability>
+      </publicationStmt>
+      <sourceDesc>
+        <listWit>
+          <witness xml:id="O" n="oriel33">Oxford, Oriel College Library 33, ff. 164r-182v</witness>
+          <witness xml:id="B" n="bal">Oxford, Balliol College 311, ff. 148r--181v</witness>
+        </listWit>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <variantEncoding method="parallel-segmentation" location="internal"/>
+      <schemaRef n="lbp-critical-1.0.0"
+                 url="https://raw.githubusercontent.com/lombardpress/lombardpress-schema/master/src/1.0/critical.rng">
+      </schemaRef>
+      <editorialDecl>
+        <p>
+          Encoding of this text has followed the recommendations of the
+          LombardPress 1.0.0 guidelines for a critical edition
+        </p>
+      </editorialDecl>
+    </encodingDesc>
+    <revisionDesc status="draft">
+      <listChange>
+        <change when="2016-11-13" status="draft" n="0.1.0">
+          <p>First draft of finished edition.</p>
+        </change>
+        <change when="2017-05-26" status="out-for-review" n="0.1.0">
+          <p>The text has been sent for review.</p>
+        </change>
+        <change when="2017-05-26" status="out-for-review" n="0.1.1-dev">
+          <p>Encoding corrections.</p>
+        </change>
+        <change when="2017-07-25" status="out-for-review" n="0.2.0">
+          <p>Revised for second review.</p>
+        </change>
+      </listChange>
+    </revisionDesc>
+  </teiHeader>
+  <text xml:lang="la" type="critical">
+    <front>
+      <div xml:id="starts-on">
+        <pb n="148-v" ed="#B"/><cb ed="#B" n="a"/>
+        <pb n="164-r" ed="#O"/><cb ed="#O" n="b"/>
+      </div>
+    </front>
+    <body>
+      <div xml:id="da-49-l1q1">
+        <head>
+          <supplied ana="#meta-text">
+            Quaestio 1: Utrum de anima possit nobis acquiri scientia
+          </supplied>
+        </head>
+        <p xml:id="da-49-l1q1-274hkz">
+          <app>
+            <lem>Item</lem>
+            <rdg wit="#O">Item</rdg>
+            <rdg wit="#B" type="variation-absent" />
+          </app>
+          quaeratur
+          <app>
+            <lem wit="#O" n="quaeratur"/>
+            <rdg wit="#B" type="variation-present">nunc</rdg>
+          </app>
+          primo utrum de anima possit nobis acquiri scientia.
+        </p>
+      </div>
+    </body>
+  </text>
+</TEI>

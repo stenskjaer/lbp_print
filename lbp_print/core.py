@@ -201,26 +201,28 @@ class LocalResource(Resource):
 
     def __init__(self, filename, custom_xslt=None):
         super().__init__(filename)
-        self.file = self.copy_to_file(filename)
+        self.file = filename
         self.xslt = self.select_xlst_script(
             schema_info=self.get_schema_info(), external=custom_xslt
         )
         self.digest = self.create_hash()
         self.id = self.digest
+        self.file = self.copy_to_temp_dir(filename)
         logging.debug(f"Local resource initialized. {filename}")
         logging.debug("Object dict: {}".format(self.__dict__))
 
-    def copy_to_file(self, filename):
+    def copy_to_temp_dir(self, filename):
         """Copy the input file to a temporary file object that we can delete later.
 
         :return: File object.
         """
-        file_argument = os.path.expanduser(filename)
-        if os.path.isfile(file_argument):
-            shutil.copy(file_argument, self.tmp_dir.name)
-            return os.path.join(self.tmp_dir.name, os.path.basename(file_argument))
+        source = os.path.expanduser(filename)
+        destination = os.path.join(self.tmp_dir.name, self.digest + ".tex")
+        if os.path.isfile(source):
+            shutil.copyfile(source, destination)
+            return destination
         else:
-            raise IOError(f"The supplied argument ({file_argument}) is not a file.")
+            raise IOError(f"The supplied argument ({source}) is not a file.")
 
 
 class RemoteResource(Resource):

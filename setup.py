@@ -3,7 +3,8 @@ import os
 from setuptools import setup, find_packages
 
 
-about = {}
+about: dict
+
 with open(os.path.join("lbp_print", "__about__.py")) as fp:
     exec(fp.read(), about)
 

@@ -28,6 +28,12 @@ logging.basicConfig(format="%(levelname)s: %(message)s")
 logging.getLogger().setLevel(config.log_level)
 
 
+class SaxonError(Exception):
+    """Raise when there is an unrecoverable error during Saxon XSLT processing."""
+
+    pass
+
+
 class Cache:
     """Object storing and verifying data about the cache directory and registry."""
 
@@ -450,10 +456,18 @@ class Tex:
             out, err = process.communicate()
 
             if err:
-                logging.warning(
-                    "The XSLT script reported the following warning(s):\n"
-                    + err.decode("utf-8")
-                )
+                logs_output = SaxonLog(err)
+                if logs_output.exit_code == 1:
+                    raise SaxonError(
+                        "The Saxon XSLT processing ran into an error:\n"
+                        + logs_output.text
+                    )
+                else:
+                    logging.warning(
+                        "The XSLT script reported the following warning(s)\n"
+                        + logs_output.text
+                    )
+
             tex_buffer = out.decode("utf-8")
             logging.info("The XML was successfully converted to TeX.")
 

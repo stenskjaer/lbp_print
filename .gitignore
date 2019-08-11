@@ -1,6 +1,7 @@
 ### Custom material from the directory ###
 *data/
 *output/
+cache/
 
 ### Ignore src directory which is created after pip install -r requirements.txt
 *src/

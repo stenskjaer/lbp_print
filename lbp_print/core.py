@@ -23,6 +23,10 @@ import samewords
 
 from lbp_print import config
 
+# Setup logging according to configuration
+logging.basicConfig(format="%(levelname)s: %(message)s")
+logging.getLogger().setLevel(config.log_level)
+
 
 class Cache:
     """Object storing and verifying data about the cache directory and registry."""

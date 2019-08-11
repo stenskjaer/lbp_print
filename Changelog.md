@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2019-08-11
 ### Added
 - A changelog.
+- Better handling of Saxon output to stop processing on unrecoverable errors.
 - Handle resources that are referenced with a URL.
 - Cache keeps historical versions in stead of removing earlier versions.
 

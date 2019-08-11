@@ -10,3 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A changelog.
 - Handle resources that are referenced with a URL.
 - Cache keeps historical versions in stead of removing earlier versions.
+
+### Changed
+- Result names are no longer defined by the input file-name, but is a sha of the file
+  content and the XSLT used to convert the file.
+- When cache is disabled, output the result to the current working directory. 

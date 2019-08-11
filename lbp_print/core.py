@@ -60,7 +60,7 @@ class Cache:
             else:
                 return False
 
-    def store(self, filename, digest: str, resource_id: str, suffix: str) -> str:
+    def store(self, filename, digest: str, suffix: str) -> str:
         """Store result in cache dir and remove earlier version of resource id.
 
         :return: String of cache file or None if no cache dir."""
@@ -418,10 +418,14 @@ class Tex:
             with open(tmp_filename, mode="w+", encoding="utf-8") as fh:
                 fh.write(tex_buffer)
 
-            logging.debug("Storing file in cache.")
-            filename = self.cache.store(
-                fh.name, digest=self.digest, resource_id=self.id, suffix=".tex"
-            )
+            if self.cache:
+                logging.debug("Storing file in cache.")
+                filename = self.cache.store(fh.name, digest=self.digest, suffix=".tex")
+            else:
+                logging.debug("Storing file in current working directory.")
+                filename = shutil.copyfile(
+                    fh.name, os.path.join(os.path.curdir, self.digest + ".tex")
+                )
 
             logging.debug("Cleaning up tmp dir.")
             self.tmp_dir.cleanup()

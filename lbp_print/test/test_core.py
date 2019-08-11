@@ -2,6 +2,7 @@ import os
 import shutil
 
 import pytest
+import lxml
 
 from lbp_print.core import LocalResource, RemoteResource, UrlResource, Tex
 from lbp_print import config
@@ -77,9 +78,30 @@ class TestCache:
 
 class TestTexConversion:
     def test_log_analysis_without_failing_errors(self, caplog):
+        """Test that the log contains recoverable error records, and that it completes 
+        successfully.
+        """
         log_error = "Recoverable error on line 1503 of critical.xslt:"
 
         path = os.path.join(config.module_dir, "test", "assets", "da-49-l1q1.xml")
         res = LocalResource(path)
         Tex(res, enable_caching=False).process(output_format="tex")
         assert log_error in caplog.text
+
+    def test_log_analysis_with_failing_errors(self):
+        """Test that the error from Saxon is raised and the process stopped."""
+
+        path = os.path.join(config.module_dir, "test", "assets", "da-49-l1q1.xml")
+        xslt_file = os.path.join(config.module_dir, "test", "assets", "invalid.xslt")
+        res = LocalResource(path, custom_xslt=xslt_file)
+        with pytest.raises(lbp_exceptions.SaxonError):
+            Tex(res, enable_caching=False).process(output_format="tex")
+
+    def test_xml_syntax_error_raised(self):
+        """Test that the XML syntax error is caught and raised."""
+
+        path = os.path.join(
+            config.module_dir, "test", "assets", "da-49-l1q1-invalid.xml"
+        )
+        with pytest.raises(lxml.etree.XMLSyntaxError):
+            LocalResource(path)

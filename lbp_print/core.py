@@ -5,7 +5,7 @@
 
 from hashlib import blake2b
 from tempfile import TemporaryDirectory
-from typing import Union
+from typing import Union, List
 
 import json
 import logging
@@ -325,6 +325,45 @@ class RemoteResource(Resource):
                 f.write(transcription_content)
         logging.info("Download of remote resource finished.")
         return f.name
+
+
+class SaxonRecord:
+    def __init__(self, content) -> None:
+        self.content = content
+        self.level = self._get_level(self.content)
+
+    def _get_level(self, content) -> int:
+        if content[:5] == "Error":
+            return logging.ERROR
+        else:
+            return logging.WARNING
+
+
+class SaxonLog:
+    def __init__(self, log_output) -> None:
+        self.saxon_output = log_output.decode()
+        self.records = self._get_records()
+        self.text = self._get_text()
+        self.exit_code = self._create_exit_code(self.records)
+
+    def _get_text(self) -> str:
+        return "".join([record.content for record in self.records])
+
+    def _get_records(self) -> List[SaxonRecord]:
+        records = []
+        for item in (e + "\n" for e in self.saxon_output.split("\n")):
+            if item[:2] == "  ":
+                records[-1].content += item
+            else:
+                record = SaxonRecord(item)
+                records.append(record)
+        return records
+
+    def _create_exit_code(self, records) -> int:
+        for record in records:
+            if record.level == logging.ERROR:
+                return 1
+        return 0
 
 
 class Tex:

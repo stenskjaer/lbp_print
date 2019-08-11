@@ -72,3 +72,13 @@ class TestCache:
         modified_res = LocalResource(modified_path)
         Tex(modified_res).process(output_format="tex")
         assert len(os.listdir(config.cache_dir)) == 2
+
+
+class TestTexConversion:
+    def test_log_analysis_without_failing_errors(self, caplog):
+        log_error = "Recoverable error on line 1503 of critical.xslt:"
+
+        path = os.path.join(config.module_dir, "test", "assets", "da-49-l1q1.xml")
+        res = LocalResource(path)
+        Tex(res, enable_caching=False).process(output_format="tex")
+        assert log_error in caplog.text

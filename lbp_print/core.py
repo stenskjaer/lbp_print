@@ -134,11 +134,14 @@ class Resource:
 
     def get_schema_info(self):
         """Return the validation schema version."""
-        # TODO: We need validation of the xml before parsing it. This is necesssary for proper user
-        # feedback on errors.
+        try:
+            parsed_etree = lxml.etree.parse(self.file)
+        except lxml.etree.XMLSyntaxError:
+            logging.error("The provided XML file is invalid.")
+            raise
 
         try:
-            schemaref_number = lxml.etree.parse(self.file).xpath(
+            schemaref_number = parsed_etree.xpath(
                 "/tei:TEI/tei:teiHeader[1]/tei:encodingDesc[1]/tei:schemaRef[1]/@n",
                 namespaces={"tei": "http://www.tei-c.org/ns/1.0"},
             )[

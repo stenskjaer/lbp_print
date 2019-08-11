@@ -49,7 +49,7 @@ class TestRemoteResource:
 class TestCache:
     @pytest.fixture
     def cache_settings(self):
-        config.cache_dir = os.path.join(os.path.curdir, "cache")
+        config.cache_dir = os.path.join(config.module_dir, "test", "assets", "cache")
         yield
         shutil.rmtree(config.cache_dir)
 

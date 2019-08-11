@@ -22,16 +22,11 @@ import lbppy
 import samewords
 
 from lbp_print import config
+from lbp_print import exceptions as lbp_exceptions
 
 # Setup logging according to configuration
 logging.basicConfig(format="%(levelname)s: %(message)s")
 logging.getLogger().setLevel(config.log_level)
-
-
-class SaxonError(Exception):
-    """Raise when there is an unrecoverable error during Saxon XSLT processing."""
-
-    pass
 
 
 class Cache:
@@ -461,7 +456,7 @@ class Tex:
             if err:
                 logs_output = SaxonLog(err)
                 if logs_output.exit_code == 1:
-                    raise SaxonError(
+                    raise lbp_exceptions.SaxonError(
                         "The Saxon XSLT processing ran into an error:\n"
                         + logs_output.text
                     )

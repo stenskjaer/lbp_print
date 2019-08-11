@@ -5,6 +5,7 @@ import pytest
 
 from lbp_print.core import LocalResource, RemoteResource, UrlResource, Tex
 from lbp_print import config
+from lbp_print import exceptions as lbp_exceptions
 
 
 class TestUrlResource:

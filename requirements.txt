@@ -4,7 +4,7 @@ isodate==0.5.4
 lxml==4.3.0
 py==1.4.34
 pyparsing==2.2.0
-pytest==3.2.3
+pytest==5.0.0
 rdflib==4.2.2
 regex==2018.8.17
 samewords>=0.5.3

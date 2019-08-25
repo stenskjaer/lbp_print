@@ -56,6 +56,8 @@ from lbp_print import config
 from lbp_print.core import LocalResource, RemoteResource, Tex
 from lbp_print.__about__ import __version__
 
+logger = logging.getLogger("lbp_print.cli")
+
 
 def load_config(filename):
     """Load and read in configuration from local config file.
@@ -66,13 +68,13 @@ def load_config(filename):
             conf = json.loads(f.read())
         return conf
     except json.decoder.JSONDecodeError as e:
-        logging.error(
+        logger.error(
             f"The config file {f.name} is incorrectly formatted.\n"
             f"JSON decoding gave the following error: {e}"
         )
         raise
     except FileNotFoundError:
-        logging.warning(
+        logger.warn(
             f"The config file {filename} was not found. Default settings will be used."
         )
         return {}
@@ -97,10 +99,10 @@ def setup_arguments(cl_args):
     # Read config file or recipe
     if cl_args["<recipe>"]:
         ini_args = load_config(cl_args["<recipe>"])
-        logging.debug(f"Recipe loaded with these values. {ini_args}")
+        logger.debug(f"Recipe loaded with these values. {ini_args}")
     else:
         ini_args = load_config(cl_args["--config-file"])
-        logging.debug(f"Config file loaded with these values. {ini_args}")
+        logger.debug(f"Config file loaded with these values. {ini_args}")
 
     # Merge configurations, giving command line arguments priority over config file arguments
     args = {**cl_args, **ini_args}
@@ -129,23 +131,21 @@ def setup_arguments(cl_args):
 
 def main():
 
-    logging.basicConfig(format="%(levelname)s: %(message)s")
-
     args = setup_arguments(docopt(__doc__, version=__version__))
 
     # Setup logging according to configuration
-    logging.getLogger().setLevel(args["--verbosity"].upper())
-    logging.debug("Logging initialized at debug level.")
+    logger.setLevel(args["--verbosity"].upper())
+    logger.debug("Logging initialized at debug level.")
 
     # Initialize the object
     transcriptions = []
     if args["--scta"]:
         for num, exp in enumerate(args["<id>"], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<id>"])}]')
+            logger.info(f'Initializing {exp}. [{num}/{len(args["<id>"])}]')
             transcriptions.append(RemoteResource(exp, custom_xslt=args["--xslt"]))
     elif args["--local"]:
         for num, exp in enumerate(args["<file>"], 1):
-            logging.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
+            logger.info(f'Initializing {exp}. [{num}/{len(args["<file>"])}]')
             transcriptions.append(LocalResource(exp, custom_xslt=args["--xslt"]))
 
     if args["pdf"]:
@@ -157,8 +157,8 @@ def main():
 
     for num, item in enumerate(transcriptions, 1):
         # Determine xslt script file (either provided or selected based on the xml transcription)
-        logging.info("-------")
-        logging.info(f"Processing {item.input}. [{num}/{len(transcriptions)}]")
+        logger.info("-------")
+        logger.info(f"Processing {item.input}. [{num}/{len(transcriptions)}]")
 
         if args["--xslt"]:
             item.xslt = item.select_xlst_script(args["--xslt"])
@@ -183,7 +183,7 @@ def main():
         # Handle output dir
         # output_dir=args["--output"]
 
-        logging.info(
+        logger.info(
             "Results returned sucessfully.\n "
             "The output file is located at %s" % os.path.abspath(result_file)
         )

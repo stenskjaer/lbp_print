@@ -24,9 +24,7 @@ import samewords
 from lbp_print import config
 from lbp_print import exceptions as lbp_exceptions
 
-# Setup logging according to configuration
-logging.basicConfig(format="%(levelname)s: %(message)s")
-logging.getLogger().setLevel(config.log_level)
+logger = logging.getLogger("lbp_print.core")
 
 
 class Cache:
@@ -43,7 +41,7 @@ class Cache:
         if directory:
             candidate = os.path.expanduser(directory)
             if not os.path.isdir(candidate):
-                logging.warning(
+                logger.warn(
                     f"Specified cache directory ({candidate}) does not exist. "
                     "It will be created now."
                 )
@@ -69,7 +67,7 @@ class Cache:
         """Store result in cache dir and remove earlier version of resource id.
 
         :return: String of cache file or None if no cache dir."""
-        logging.debug(f"Storing {filename} in cache dir ({self.dir})")
+        logger.debug(f"Storing {filename} in cache dir ({self.dir})")
         return shutil.copyfile(filename, os.path.join(self.dir, digest + suffix))
 
 
@@ -132,7 +130,7 @@ class Resource:
         try:
             parsed_etree = lxml.etree.parse(self.file)
         except lxml.etree.XMLSyntaxError:
-            logging.error("The provided XML file is invalid.")
+            logger.error("The provided XML file is invalid.")
             raise
 
         try:
@@ -147,7 +145,7 @@ class Resource:
                 "type": schemaref_number.split("-")[1],
             }
         except IndexError as e:
-            logging.warning(
+            logger.warn(
                 "The document does not seem to contain a value in "
                 "TEI/teiHeader/encodingDesc/schemaRef[@n]. See "
                 "the LombardPress documentation for help. This "
@@ -157,7 +155,7 @@ class Resource:
             )
             return None
         except Exception as e:
-            logging.error(
+            logger.error(
                 "The process resulted in an error: {}.\n "
                 "If the problem persists, please submit an issue "
                 "report.".format(e)
@@ -187,20 +185,20 @@ class UrlResource(Resource):
         )
         self.digest = self.create_hash()
         self.id = self.digest
-        logging.debug(f"Url resource initialized with url: {url}")
-        logging.debug("Object dict: {}".format(self.__dict__))
+        logger.debug(f"Url resource initialized with url: {url}")
+        logger.debug("Object dict: {}".format(self.__dict__))
 
     def _download_to_file(self, url) -> str:
         """Download the remote object and store in a temporary file.
         """
         tmp_file = open(os.path.join(self.tmp_dir.name, "download"), mode="w")
 
-        logging.info("Downloading remote resource...")
+        logger.info("Downloading remote resource...")
         with urllib.request.urlopen(url) as response:
             transcription_content = response.read().decode("utf-8")
             with open(tmp_file.name, mode="w", encoding="utf-8") as f:
                 f.write(transcription_content)
-        logging.info("Download of remote resource finished.")
+        logger.info("Download of remote resource finished.")
         return f.name
 
 
@@ -216,8 +214,8 @@ class LocalResource(Resource):
         self.digest = self.create_hash()
         self.id = self.digest
         self.file = self.copy_to_temp_dir(filename)
-        logging.debug(f"Local resource initialized. {filename}")
-        logging.debug("Object dict: {}".format(self.__dict__))
+        logger.debug(f"Local resource initialized. {filename}")
+        logger.debug("Object dict: {}".format(self.__dict__))
 
     def copy_to_temp_dir(self, filename):
         """Copy the input file to a temporary file object that we can delete later.
@@ -251,15 +249,15 @@ class RemoteResource(Resource):
         )
         self.digest = self.create_hash()
         self.id = self.digest
-        logging.debug("Remote resource initialized.")
-        logging.debug("Object dict: {}".format(self.__dict__))
+        logger.debug("Remote resource initialized.")
+        logger.debug("Object dict: {}".format(self.__dict__))
 
     def _is_direct_transcription(self, transcription_obj):
         return isinstance(transcription_obj, lbppy.Transcription)
 
     def _get_schema_info(self, transcription_object):
         """Return the validation schema version."""
-        logging.info("Getting information about the transcription schema.")
+        logger.info("Getting information about the transcription schema.")
         if self._is_direct_transcription(transcription_object):
             return {
                 "version": transcription_object.file().validating_schema_version(),
@@ -287,13 +285,13 @@ class RemoteResource(Resource):
         try:
             return lbppy.Resource.find(url_string)
         except AttributeError:
-            logging.error(
+            logger.error(
                 f'A resource with the provided ID ("{url_string}") could not be located. '
                 "Ensure that you have entered the correct id. "
             )
             raise
         except urllib.error.URLError as exc:
-            logging.error(f"Unable to connect to the resource. Error message: {exc}")
+            logger.error(f"Unable to connect to the resource. Error message: {exc}")
             raise
 
     def _define_transcription_object(self, resource):
@@ -317,7 +315,7 @@ class RemoteResource(Resource):
         """
         tmp_file = open(os.path.join(self.tmp_dir.name, "tmp"), mode="w")
 
-        logging.info("Downloading remote resource...")
+        logger.info("Downloading remote resource...")
         if self._is_direct_transcription(transcription_obj):
             url_object = transcription_obj.file().file().geturl()
         else:
@@ -327,7 +325,7 @@ class RemoteResource(Resource):
             transcription_content = response.read().decode("utf-8")
             with open(tmp_file.name, mode="w", encoding="utf-8") as f:
                 f.write(transcription_content)
-        logging.info("Download of remote resource finished.")
+        logger.info("Download of remote resource finished.")
         return f.name
 
 
@@ -420,11 +418,11 @@ class Tex:
         """
 
         if self.cache and self.cache.contains(basename=self.digest + ".tex"):
-            logging.info(f"Using cached version of {self.id}.")
+            logger.info(f"Using cached version of {self.id}.")
             return os.path.join(self.cache.dir, self.digest + ".tex")
         else:
-            logging.info(f"Start conversion of {self.id}.")
-            logging.debug(f"Using XSLT: {self.xslt}.")
+            logger.info(f"Start conversion of {self.id}.")
+            logger.debug(f"Using XSLT: {self.xslt}.")
 
             if self.xslt_parameters:
                 process = subprocess.Popen(
@@ -461,28 +459,28 @@ class Tex:
                         + logs_output.text
                     )
                 else:
-                    logging.warning(
+                    logger.warn(
                         "The XSLT script reported the following warning(s)\n"
                         + logs_output.text
                     )
 
             tex_buffer = out.decode("utf-8")
-            logging.info("The XML was successfully converted to TeX.")
+            logger.info("The XML was successfully converted to TeX.")
 
             tmp_filename = os.path.join(self.tmp_dir.name, self.digest + ".tex")
             with open(tmp_filename, mode="w+", encoding="utf-8") as fh:
                 fh.write(tex_buffer)
 
             if self.cache:
-                logging.debug("Storing file in cache.")
+                logger.debug("Storing file in cache.")
                 filename = self.cache.store(fh.name, digest=self.digest, suffix=".tex")
             else:
-                logging.debug("Storing file in current working directory.")
+                logger.debug("Storing file in current working directory.")
                 filename = shutil.copyfile(
                     fh.name, os.path.join(os.path.curdir, self.digest + ".tex")
                 )
 
-            logging.debug("Cleaning up tmp dir.")
+            logger.debug("Cleaning up tmp dir.")
             self.tmp_dir.cleanup()
 
             return filename
@@ -493,7 +491,7 @@ class Tex:
         :return: File object of the tex file after cleanup.
         """
 
-        logging.debug("Removing whitespace...")
+        logger.debug("Removing whitespace...")
         patterns = [
             # Remove redundant space around opening bracket.
             (r" ?{ ?", r"{"),
@@ -537,7 +535,7 @@ class Tex:
         with open(tex_file, "w") as f:
             f.write(buffer)
 
-        logging.debug("Whitespace removed.")
+        logger.debug("Whitespace removed.")
         return tex_file
 
     def clean(self, tex_file):
@@ -560,7 +558,7 @@ class Tex:
             with open(tex_file, "w") as f:
                 f.write(buffer)
 
-            logging.debug("Samewords added.")
+            logger.debug("Samewords added.")
 
         return tex_file
 
@@ -579,14 +577,14 @@ class Tex:
 
         def write_output(get):
             for line in iter(get, None):
-                logging.info(line.decode("utf-8").replace("\n", ""))
+                logger.info(line.decode("utf-8").replace("\n", ""))
 
         if self.cache.contains(self.digest + ".pdf"):
-            logging.debug("Using cached pdf.")
+            logger.debug("Using cached pdf.")
             return os.path.join(self.cache.dir, self.digest + ".pdf")
 
         else:
-            logging.info(f"Start compilation of {self.id}")
+            logger.info(f"Start compilation of {self.id}")
             process = subprocess.Popen(
                 f"latexmk --xelatex --output-directory={self.tmp_dir.name} "
                 f"--halt-on-error "
@@ -622,7 +620,7 @@ class Tex:
                 )
                 return file_name
             else:
-                logging.error(
+                logger.error(
                     "The compilation failed. See tex output above for more info."
                 )
                 raise Exception("Latex compilation failed.")

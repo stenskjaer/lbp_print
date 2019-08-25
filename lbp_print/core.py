@@ -585,10 +585,9 @@ class Tex:
 
         else:
             logger.info(f"Start compilation of {self.id}")
+            os.mkdir(self.tmp_dir.name)
             process = subprocess.Popen(
-                f"latexmk --xelatex --output-directory={self.tmp_dir.name} "
-                f"--halt-on-error "
-                f"{re.escape(input_file)}",
+                f"tectonic --outdir={self.tmp_dir.name} {re.escape(input_file)}",
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 shell=True,

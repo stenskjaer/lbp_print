@@ -354,7 +354,7 @@ class SaxonLog:
         return "".join([record.content for record in self.records])
 
     def _get_records(self) -> List[SaxonRecord]:
-        records: List
+        records: List = []
         for item in (e + "\n" for e in self.saxon_output.split("\n")):
             if item[:2] == "  ":
                 records[-1].content += item

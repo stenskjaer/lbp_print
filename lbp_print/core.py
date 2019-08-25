@@ -579,7 +579,7 @@ class Tex:
             for line in iter(get, None):
                 logger.info(line.decode("utf-8").replace("\n", ""))
 
-        if self.cache.contains(self.digest + ".pdf"):
+        if self.cache and self.cache.contains(self.digest + ".pdf"):
             logger.debug("Using cached pdf.")
             return os.path.join(self.cache.dir, self.digest + ".pdf")
 
@@ -615,10 +615,11 @@ class Tex:
                     self.tmp_dir.name,
                     os.path.splitext(os.path.basename(input_file))[0] + ".pdf",
                 )
-                file_name = self.cache.store(
-                    tmp_file, digest=self.digest, suffix=".pdf"
-                )
-                return file_name
+                if self.cache:
+                    return self.cache.store(tmp_file, digest=self.digest, suffix=".pdf")
+                else:
+                    return tmp_file
+
             else:
                 logger.error(
                     "The compilation failed. See tex output above for more info."

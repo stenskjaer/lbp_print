@@ -613,14 +613,14 @@ class Tex:
 
             if process.returncode == 0:
                 # Process finished. We clean the tex dir and return the filename.
-                output_file = os.path.join(
+                tmp_file = os.path.join(
                     self.tmp_dir.name,
                     os.path.splitext(os.path.basename(input_file))[0] + ".pdf",
                 )
-                cache_name = self.cache.store(
-                    output_file, digest=self.digest, resource_id=self.id, suffix=".pdf"
+                file_name = self.cache.store(
+                    tmp_file, digest=self.digest, suffix=".pdf"
                 )
-                return cache_name
+                return file_name
             else:
                 logging.error(
                     "The compilation failed. See tex output above for more info."

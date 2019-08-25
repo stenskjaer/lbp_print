@@ -3,7 +3,7 @@ import os
 from setuptools import setup, find_packages
 
 
-about: dict
+about: dict = {}
 
 with open(os.path.join("lbp_print", "__about__.py")) as fp:
     exec(fp.read(), about)
@@ -20,7 +20,7 @@ setup(
         "docopt==0.6.2",
         "isodate==0.5.4",
         "lbppy>=0.0.0",
-        "lxml==4.3.0",
+        "lxml==4.4.1",
         "pyparsing==2.2.0",
         "rdflib==4.2.2",
         "regex==2018.8.17",

@@ -15,21 +15,20 @@ redis_connection = Redis(host="localhost")
 q = Queue(connection=redis_connection)
 
 
-def handle_job(resource_value: str, resource_type: str) -> dict:
+def handle_job(resource: str) -> dict:
     try:
-        logger.debug(f"Checking for job with the id {resource_value}")
-        job = Job.fetch(resource_value, connection=redis_connection)
+        logger.debug(f"Checking for job with the id {resource.id}")
+        job = Job.fetch(resource.id, connection=redis_connection)
     except NoSuchJobError:
         logger.debug(f"No existing job. Starting one up ...")
         job = q.enqueue(
             convert_resource,
-            resource_value,
-            resource_type,
-            job_id=resource_value,
+            resource,
+            job_id=resource.id,
             job_timeout="1h",
             result_ttl=30,
         )
-        return {"Status": f"Started processing {resource_value}"}
+        return {"Status": f"Started processing {resource.id}"}
 
     status = job.meta["progress"]
 
@@ -52,21 +51,12 @@ def update_status(message, job):
     logger.info(message)
 
 
-def convert_resource(id: str, resource_type: str) -> str:
+def convert_resource(resource: lbp_print.Resource) -> str:
     job = get_current_job()
-    update_status(f"Start processing {id}.", job)
 
-    if resource_type == "scta":
-        trans = lbp_print.RemoteResource(id)
-    elif resource_type == "url":
-        trans = lbp_print.UrlResource(id)
-    else:
-        raise ValueError(f"Trying to convert {id} of illegal type {resource_type}")
-    update_status(f"Identified and downloaded {id}.", job)
-
-    update_status(f"Converting {id} to pdf.", job)
+    update_status(f"Converting {resource.id} to pdf.", job)
     try:
-        filename = lbp_print.Tex(trans).process(output_format="pdf")
+        filename = lbp_print.Tex(resource).process(output_format="pdf")
     except SaxonError as exc:
         update_status(str(exc), job)
         raise

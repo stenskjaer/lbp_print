@@ -60,13 +60,19 @@ def process_resource():
         return jsonify(error_message)
 
     if resource_id:
-        resource_value = resource_id
-        resource_type = "scta"
+        trans = lbp_print.RemoteResource(resource_id)
+    elif resource_url:
+        trans = lbp_print.UrlResource(resource_url)
     else:
-        resource_value = resource_url
-        resource_type = "url"
+        raise ValueError(f"Trying to convert resource of non-existing type. It must be a URL or an SCTA id.")
 
-    response = handle_job(resource_value, resource_type)
+
+    cache = lbp_print.Cache("./cache")
+    digest = trans.create_hash()
+    if cache.contains(digest + ".pdf"):
+        response = {"Status": "Finished", "url": digest + ".pdf"}
+    else:
+        response = handle_job(trans)
 
     return jsonify(response)
 

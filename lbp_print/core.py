@@ -101,7 +101,7 @@ class Resource:
         try:
             if schema_info["type"] == "critical":
                 xslt_document_type = "critical"
-            elif schema_info["type"] == "critical":
+            elif schema_info["type"] == "diplomatic":
                 xslt_document_type = "diplomatic"
         except KeyError:
             raise AttributeError(

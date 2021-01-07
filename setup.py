@@ -20,7 +20,7 @@ setup(
         "docopt==0.6.2",
         "isodate==0.5.4",
         "lbppy>=0.0.0",
-        "lxml==4.4.1",
+        "lxml==4.6.2",
         "pyparsing==2.2.0",
         "rdflib==4.2.2",
         "regex==2018.8.17",

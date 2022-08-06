@@ -26,7 +26,7 @@ setup(
         "regex==2018.8.17",
         "samewords==0.5.3",
         "SPARQLWrapper==1.8.0",
-        "untangle==1.1.0",
+        "untangle==1.2.1",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
